@@ -1,6 +1,6 @@
-
 import express from "express";
 import path from "path";
+import crypto from "crypto";
 import { fileURLToPath } from "url";
 
 import makeWASocket, {
@@ -18,8 +18,7 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.use(express.json());
-app.use(express.static(path.join(__dirname, "public")));
+app.use(express.json({ limit: "20kb" }));
 
 const ai = new GoogleGenAI({
   apiKey: process.env.GEMINI_API_KEY
@@ -29,6 +28,228 @@ let qrImage = null;
 let botStatus = "Starting...";
 let isConnecting = false;
 let reconnectTimer = null;
+
+let adminSession = null;
+let sessionExpiry = 0;
+
+const ADMIN_USERNAME = process.env.ADMIN_USERNAME;
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+
+// ===============================
+// ADMIN SESSION SECURITY
+// ===============================
+
+function safeEqual(a, b) {
+  if (typeof a !== "string" || typeof b !== "string") {
+    return false;
+  }
+
+  const first = Buffer.from(a);
+  const second = Buffer.from(b);
+
+  if (first.length !== second.length) return false;
+
+  return crypto.timingSafeEqual(first, second);
+}
+
+function getCookie(req, name) {
+  const cookies = (req.headers.cookie || "").split(";");
+
+  for (const item of cookies) {
+    const parts = item.trim().split("=");
+    const key = parts.shift();
+
+    if (key === name) return parts.join("=");
+  }
+
+  return null;
+}
+
+function isAdmin(req) {
+  const token = getCookie(req, "fa_admin_session");
+
+  return Boolean(
+    adminSession &&
+    token &&
+    safeEqual(token, adminSession) &&
+    Date.now() < sessionExpiry
+  );
+}
+
+function requireAdmin(req, res, next) {
+  if (!isAdmin(req)) {
+    return res.status(401).json({
+      error: "Admin login required"
+    });
+  }
+
+  next();
+}
+
+// ===============================
+// LOGIN PAGE
+// ===============================
+
+const loginPage = `
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FLYING ARROW Admin Login</title>
+<style>
+*{box-sizing:border-box}
+body{
+margin:0;min-height:100vh;display:grid;place-items:center;
+background:#081225;color:white;font-family:Arial,sans-serif;padding:20px
+}
+.card{
+width:100%;max-width:380px;background:#12213b;
+border:1px solid #263b5e;border-radius:16px;padding:28px
+}
+h2{color:#49a6ff;margin-top:0}
+input,button{
+width:100%;padding:13px;margin-top:13px;
+border-radius:8px;border:1px solid #344b6d;font-size:15px
+}
+input{background:#081225;color:white}
+button{background:#1679e9;color:white;border:0;font-weight:bold}
+#message{color:#ff7777;font-size:13px}
+</style>
+</head>
+<body>
+<div class="card">
+<h2>FLYING ARROW ❤️</h2>
+<p>Private Admin Login</p>
+<form id="loginForm">
+<input id="username" placeholder="Admin Username" required autocomplete="username">
+<input id="password" type="password" placeholder="Admin Password" required autocomplete="current-password">
+<button type="submit">LOGIN</button>
+</form>
+<p id="message"></p>
+</div>
+<script>
+document.getElementById("loginForm").addEventListener("submit",async(e)=>{
+e.preventDefault();
+const message=document.getElementById("message");
+message.textContent="Logging in...";
+try{
+const response=await fetch("/api/login",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({
+username:document.getElementById("username").value,
+password:document.getElementById("password").value
+})
+});
+const data=await response.json();
+if(!response.ok) throw new Error(data.error||"Login failed");
+location.href="/";
+}catch(error){
+message.textContent=error.message;
+}
+});
+</script>
+</body>
+</html>
+`;
+
+// ===============================
+// LOGIN / LOGOUT
+// ===============================
+
+app.get("/login", (req, res) => {
+  if (isAdmin(req)) return res.redirect("/");
+  res.type("html").send(loginPage);
+});
+
+app.post("/api/login", (req, res) => {
+  if (!ADMIN_USERNAME || !ADMIN_PASSWORD) {
+    return res.status(500).json({
+      error: "Admin login environment is not configured"
+    });
+  }
+
+  const { username, password } = req.body || {};
+
+  if (
+    !safeEqual(username, PRINCE_LIMON) ||
+    !safeEqual(password, PRINCE_LIMON_PSS)
+  ) {
+    return res.status(401).json({
+      error: "ভুল Username অথবা Password"
+    });
+  }
+
+  adminSession = crypto.randomBytes(32).toString("hex");
+  sessionExpiry = Date.now() + 12 * 60 * 60 * 1000;
+
+  res.setHeader(
+    "Set-Cookie",
+    "fa_admin_session=" + adminSession +
+    "; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=43200"
+  );
+
+  res.json({ success: true });
+});
+
+app.post("/api/logout", requireAdmin, (req, res) => {
+  adminSession = null;
+  sessionExpiry = 0;
+
+  res.setHeader(
+    "Set-Cookie",
+    "fa_admin_session=; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=0"
+  );
+
+  res.json({ success: true });
+});
+
+// ===============================
+// PRIVATE DASHBOARD
+// ===============================
+
+app.get("/", (req, res) => {
+  if (!isAdmin(req)) return res.redirect("/login");
+
+  res.sendFile(path.join(__dirname, "public", "admin.html"));
+});
+
+app.get("/admin.html", (req, res) => {
+  if (!isAdmin(req)) return res.redirect("/login");
+
+  res.sendFile(path.join(__dirname, "public", "admin.html"));
+});
+
+// ===============================
+// STATUS AND QR API
+// ===============================
+
+app.get("/health", (req, res) => {
+  res.json({ server: "online" });
+});
+
+app.get("/api/status", requireAdmin, (req, res) => {
+  res.json({
+    status: botStatus,
+    whatsappConnected: botStatus === "WhatsApp Connected",
+    qrReady: Boolean(qrImage),
+    server: "online",
+    aiProvider: "Gemini"
+  });
+});
+
+app.get("/api/qr", requireAdmin, (req, res) => {
+  res.json({ qr: qrImage });
+});
+
+app.get("/status", requireAdmin, (req, res) => {
+  res.json({ status: botStatus });
+});
+
+// ===============================
+// AI SYSTEM PROMPT
+// ===============================
 
 const SYSTEM_PROMPT = `
 You are the WhatsApp assistant of FLYING ARROW Free Fire Tournament.
@@ -58,9 +279,6 @@ TOURNAMENT RULES:
   its current status is provided.
 - If a customer asks for an unavailable time,
   politely say that time is not sold.
-- If the customer asks for QR, say that you can
-  provide the payment QR. Do not invent a QR.
-- If they ask for a payment number, do not invent one.
 - Never invent payment numbers, QR codes or group links.
 - Do not claim payment is verified.
 - Do not send a group link unless the correct link
@@ -72,38 +290,19 @@ Keep replies short. Do not send multiple steps
 unless the customer asks.
 `;
 
-// Dashboard home
-app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "admin.html"));
-});
-
-// Server health
-app.get("/health", (req, res) => {
-  res.json({ server: "online" });
-});
-
-// Dashboard status API
-app.get("/api/status", (req, res) => {
-  res.json({
-    status: botStatus,
-    whatsappConnected: botStatus === "WhatsApp Connected",
-    qrReady: Boolean(qrImage),
-    server: "online",
-    aiProvider: "Gemini"
-  });
-});
-
-// Temporary old status route
-app.get("/status", (req, res) => {
-  res.json({ status: botStatus });
-});
+// ===============================
+// START SERVER
+// ===============================
 
 app.listen(PORT, () => {
   console.log("FLYING ARROW AI BOT server started");
   connectWhatsApp();
 });
 
-// Gemini AI with two retries
+// ===============================
+// GEMINI AI
+// ===============================
+
 async function getAIReply(messageText) {
   for (let attempt = 1; attempt <= 3; attempt++) {
     try {
@@ -122,7 +321,7 @@ Write only the reply to the customer.`
 
     } catch (error) {
       console.error(
-        `AI attempt ${attempt} failed:`,
+        "AI attempt " + attempt + " failed:",
         error.message
       );
 
@@ -140,6 +339,10 @@ Write only the reply to the customer.`
     }
   }
 }
+
+// ===============================
+// WHATSAPP CONNECTION
+// ===============================
 
 async function connectWhatsApp() {
   if (isConnecting) return;
