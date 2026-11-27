@@ -1,0 +1,20 @@
+{
+  "name": "flying-arrow-whatsapp-bot",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "FLYING ARROW WhatsApp AI Bot",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@whiskeysockets/baileys": "6.7.18",
+    "@supabase/supabase-js": "^2.49.1",
+    "@google/genai": "^1.0.0",
+    "express": "^4.21.2",
+    "pino": "^9.6.0"
+  }
+}
