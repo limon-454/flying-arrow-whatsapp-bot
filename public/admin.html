@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FLYING ARROW - Admin Panel</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#081225;color:#fff;font-family:Arial,sans-serif}
+header{padding:20px;background:#101e36;border-bottom:1px solid #263653}
+header h2{margin:0;color:#49a6ff}
+header p{margin:7px 0 0;color:#a8b8d0;font-size:13px}
+.container{padding:20px;max-width:1100px;margin:auto}
+h3{color:#c9d9f1}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:15px}
+.card{background:#12213b;border:1px solid #263b5e;padding:20px;border-radius:14px}
+.card h3{margin:0 0 12px;font-size:16px}
+.value{font-size:23px;font-weight:bold;color:#49a6ff}
+.small{color:#9aacc7;font-size:13px}
+.status{color:#ffca65}
+button{background:#1679e9;color:white;border:0;padding:12px 17px;border-radius:8px;font-weight:bold;margin-top:10px}
+button:disabled{opacity:.5}
+section{margin-top:25px}
+footer{text-align:center;color:#7587a4;padding:25px;font-size:12px}
+</style>
+</head>
+<body>
+<header>
+  <h2>FLYING ARROW E-SPORTS</h2>
+  <p>Private AI Bot Control Panel</p>
+</header>
+
+<div class="container">
+  <h2>Welcome, Admin ❤️</h2>
+  <p class="small">আপনার Tournament Bot-এর Control Center</p>
+
+  <section class="grid">
+    <div class="card">
+      <h3>WhatsApp Status</h3>
+      <div class="value status" id="waStatus">Checking...</div>
+      <p class="small">WhatsApp Connection</p>
+    </div>
+    <div class="card">
+      <h3>AI Assistant</h3>
+      <div class="value">Gemini</div>
+      <p class="small">AI Provider</p>
+    </div>
+    <div class="card">
+      <h3>Bot Server</h3>
+      <div class="value status" id="serverStatus">Checking...</div>
+      <p class="small">Render Server</p>
+    </div>
+  </section>
+
+  <section class="card">
+    <h3>WhatsApp Connection</h3>
+    <p class="small">এখানে আপনার WhatsApp QR Code দেখানো হবে।</p>
+    <div style="background:#fff;color:#222;padding:35px;text-align:center;border-radius:10px">
+      QR Code will appear here
+    </div>
+    <button disabled>Refresh QR</button>
+    <p class="small">Live QR Connection পরবর্তী ধাপে যুক্ত হবে।</p>
+  </section>
+
+  <section class="grid">
+    <div class="card">
+      <h3>Live Inbox</h3>
+      <p class="small">Customer messages এবং Admin replies</p>
+      <button disabled>Open Inbox</button>
+    </div>
+    <div class="card">
+      <h3>AI Settings</h3>
+      <p class="small">AI Provider এবং Bot Prompt</p>
+      <button disabled>Manage AI</button>
+    </div>
+    <div class="card">
+      <h3>Slot Manager</h3>
+      <p class="small">Slot Price এবং Availability</p>
+      <button disabled>Manage Slots</button>
+    </div>
+    <div class="card">
+      <h3>Payment Settings</h3>
+      <p class="small">bKash, Nagad এবং Payment QR</p>
+      <button disabled>Manage Payment</button>
+    </div>
+  </section>
+
+  <section class="card">
+    <h3>System Logs</h3>
+    <p class="small">Bot activity এবং Error Logs এখানে দেখা যাবে।</p>
+    <div id="logs">Live Logs will appear here.</div>
+  </section>
+</div>
+
+<footer>FLYING ARROW E-SPORTS © 2026</footer>
+</body>
+</html>
