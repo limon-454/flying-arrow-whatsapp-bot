@@ -1,3 +1,4 @@
+
 import express from "express";
 import path from "path";
 import crypto from "crypto";
@@ -30,39 +31,25 @@ let sessionExpiry = 0;
 const ADMIN_USERNAME = process.env.ADMIN_USERNAME;
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
 
-// ===============================
-// ADMIN SESSION SECURITY
-// ===============================
-
 function safeEqual(a, b) {
-  if (typeof a !== "string" || typeof b !== "string") {
-    return false;
-  }
-
-  const first = Buffer.from(a);
-  const second = Buffer.from(b);
-
-  if (first.length !== second.length) return false;
-
-  return crypto.timingSafeEqual(first, second);
+  if (typeof a !== "string" || typeof b !== "string") return false;
+  const x = Buffer.from(a);
+  const y = Buffer.from(b);
+  return x.length === y.length && crypto.timingSafeEqual(x, y);
 }
 
 function getCookie(req, name) {
   const cookies = (req.headers.cookie || "").split(";");
-
   for (const item of cookies) {
     const parts = item.trim().split("=");
     const key = parts.shift();
-
     if (key === name) return parts.join("=");
   }
-
   return null;
 }
 
 function isAdmin(req) {
   const token = getCookie(req, "fa_admin_session");
-
   return Boolean(
     adminSession &&
     token &&
@@ -73,17 +60,10 @@ function isAdmin(req) {
 
 function requireAdmin(req, res, next) {
   if (!isAdmin(req)) {
-    return res.status(401).json({
-      error: "Admin login required"
-    });
+    return res.status(401).json({ error: "Admin login required" });
   }
-
   next();
 }
-
-// ===============================
-// LOGIN PAGE
-// ===============================
 
 const loginPage = `
 <!DOCTYPE html>
@@ -94,19 +74,13 @@ const loginPage = `
 <title>FLYING ARROW Admin Login</title>
 <style>
 *{box-sizing:border-box}
-body{
-margin:0;min-height:100vh;display:grid;place-items:center;
-background:#081225;color:white;font-family:Arial,sans-serif;padding:20px
-}
-.card{
-width:100%;max-width:380px;background:#12213b;
-border:1px solid #263b5e;border-radius:16px;padding:28px
-}
+body{margin:0;min-height:100vh;display:grid;place-items:center;
+background:#081225;color:white;font-family:Arial,sans-serif;padding:20px}
+.card{width:100%;max-width:380px;background:#12213b;
+border:1px solid #263b5e;border-radius:16px;padding:28px}
 h2{color:#49a6ff;margin-top:0}
-input,button{
-width:100%;padding:13px;margin-top:13px;
-border-radius:8px;border:1px solid #344b6d;font-size:15px
-}
+input,button{width:100%;padding:13px;margin-top:13px;
+border-radius:8px;border:1px solid #344b6d;font-size:15px}
 input{background:#081225;color:white}
 button{background:#1679e9;color:white;border:0;font-weight:bold}
 #message{color:#ff7777;font-size:13px}
@@ -140,18 +114,12 @@ password:document.getElementById("password").value
 const data=await response.json();
 if(!response.ok) throw new Error(data.error||"Login failed");
 location.href="/";
-}catch(error){
-message.textContent=error.message;
-}
+}catch(error){message.textContent=error.message;}
 });
 </script>
 </body>
 </html>
 `;
-
-// ===============================
-// LOGIN / LOGOUT
-// ===============================
 
 app.get("/login", (req, res) => {
   if (isAdmin(req)) return res.redirect("/");
@@ -200,25 +168,15 @@ app.post("/api/logout", requireAdmin, (req, res) => {
   res.json({ success: true });
 });
 
-// ===============================
-// PRIVATE DASHBOARD
-// ===============================
-
 app.get("/", (req, res) => {
   if (!isAdmin(req)) return res.redirect("/login");
-
   res.sendFile(path.join(__dirname, "public", "admin.html"));
 });
 
 app.get("/admin.html", (req, res) => {
   if (!isAdmin(req)) return res.redirect("/login");
-
   res.sendFile(path.join(__dirname, "public", "admin.html"));
 });
-
-// ===============================
-// STATUS AND QR API
-// ===============================
 
 app.get("/health", (req, res) => {
   res.json({ server: "online" });
@@ -230,7 +188,7 @@ app.get("/api/status", requireAdmin, (req, res) => {
     whatsappConnected: botStatus === "WhatsApp Connected",
     qrReady: Boolean(qrImage),
     server: "online",
-    aiProvider: "SambaNova"
+    aiProvider: "Cloudflare Workers AI"
   });
 });
 
@@ -286,6 +244,92 @@ unless the customer asks.
 `;
 
 // ===============================
+// CLOUDFLARE WORKERS AI
+// ===============================
+
+async function getAIReply(messageText) {
+  const apiToken = process.env.CLOUDFLARE_API_TOKEN;
+  const accountId = process.env.CLOUDFLARE_ACCOUNT_ID;
+
+  if (!apiToken) {
+    throw new Error("CLOUDFLARE_API_TOKEN is missing");
+  }
+
+  if (!accountId) {
+    throw new Error("CLOUDFLARE_ACCOUNT_ID is missing");
+  }
+
+  const model = "@cf/openai/gpt-oss-20b";
+
+  const url =
+    `https://api.cloudflare.com/client/v4/accounts/${accountId}/ai/run/${model}`;
+
+  const response = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${apiToken}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      messages: [
+        {
+          role: "system",
+          content: SYSTEM_PROMPT
+        },
+        {
+          role: "user",
+          content: messageText
+        }
+      ],
+      max_tokens: 300,
+      temperature: 0.3
+    }),
+    signal: AbortSignal.timeout(60000)
+  });
+
+  const responseText = await response.text();
+
+  let data;
+  try {
+    data = JSON.parse(responseText);
+  } catch {
+    throw new Error(
+      "Cloudflare returned invalid JSON: " + responseText.slice(0, 300)
+    );
+  }
+
+  if (!response.ok || data.success === false) {
+    throw new Error(
+      `Cloudflare HTTP ${response.status}: ` +
+      JSON.stringify(data.errors || data).slice(0, 600)
+    );
+  }
+
+  const result = data.result || {};
+
+  let reply =
+    result.response ||
+    result.output_text ||
+    result.choices?.[0]?.message?.content ||
+    "";
+
+  if (Array.isArray(reply)) {
+    reply = reply
+      .filter(item => item.type === "text")
+      .map(item => item.text || "")
+      .join("");
+  }
+
+  if (typeof reply !== "string" || !reply.trim()) {
+    console.error("Cloudflare empty response:", JSON.stringify(data).slice(0, 1500));
+    throw new Error("Cloudflare returned an empty reply");
+  }
+
+  console.log("Cloudflare AI reply generated successfully");
+  return reply.trim();
+}
+
+// ===============================
 // START SERVER
 // ===============================
 
@@ -293,122 +337,6 @@ app.listen(PORT, () => {
   console.log("FLYING ARROW AI BOT server started");
   connectWhatsApp();
 });
-
-// ===============================
-// SAMBANOVA AI
-// ===============================
-
-async function getAIReply(messageText) {
-  const apiKey = process.env.SAMBANOVA_API_KEY;
-
-  if (!apiKey) {
-    throw new Error("SAMBANOVA_API_KEY is missing");
-  }
-
-  for (let attempt = 1; attempt <= 3; attempt++) {
-    try {
-      console.log("SambaNova request attempt:", attempt);
-
-      const response = await fetch(
-        "https://api.sambanova.ai/v1/chat/completions",
-        {
-          method: "POST",
-          headers: {
-            "Authorization": `Bearer ${apiKey}`,
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            model: "GLM-5.3",
-            stream: false,
-            messages: [
-              {
-                role: "system",
-                content: SYSTEM_PROMPT
-              },
-              {
-                role: "user",
-                content: messageText
-              }
-            ],
-            max_tokens: 300,
-            temperature: 0.3
-          }),
-          signal: AbortSignal.timeout(45000)
-        }
-      );
-
-      const responseText = await response.text();
-
-      let data;
-
-      try {
-        data = JSON.parse(responseText);
-      } catch {
-        throw new Error(
-          "Invalid API response: " + responseText.slice(0, 300)
-        );
-      }
-
-      if (!response.ok) {
-        throw new Error(
-          `SambaNova HTTP ${response.status}: ` +
-          JSON.stringify(data.error || data).slice(0, 500)
-        );
-      }
-
-      const choice = data.choices?.[0];
-      const content = choice?.message?.content;
-
-      let reply = "";
-
-      if (typeof content === "string") {
-        reply = content.trim();
-      } else if (Array.isArray(content)) {
-        reply = content
-          .filter(item => item.type === "text")
-          .map(item => item.text || "")
-          .join("")
-          .trim();
-      }
-
-      if (!reply) {
-        console.error(
-          "SambaNova empty response details:",
-          JSON.stringify({
-            model: data.model,
-            finish_reason: choice?.finish_reason,
-            message: choice?.message,
-            usage: data.usage
-          }).slice(0, 1500)
-        );
-
-        throw new Error("SambaNova returned an empty reply");
-      }
-
-      console.log("SambaNova AI reply generated successfully");
-
-      return reply;
-
-    } catch (error) {
-      console.error(
-        "SambaNova attempt " + attempt + " failed:",
-        error.message
-      );
-
-      const temporaryError =
-        /429|500|502|503|504|timeout|temporarily|rate limit|empty reply/i
-          .test(error.message || "");
-
-      if (!temporaryError || attempt === 3) {
-        throw error;
-      }
-
-      await new Promise(resolve =>
-        setTimeout(resolve, attempt * 5000)
-      );
-    }
-  }
-}
 
 // ===============================
 // WHATSAPP CONNECTION
@@ -505,10 +433,10 @@ async function connectWhatsApp() {
             text: reply
           });
 
-          console.log("SambaNova AI reply sent successfully");
+          console.log("Cloudflare AI reply sent successfully");
 
         } catch (error) {
-          console.error("SambaNova AI reply error:", error.message);
+          console.error("Cloudflare AI reply error:", error.message);
 
           try {
             await sock.sendMessage(jid, {
