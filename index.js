@@ -1,15 +1,25 @@
 
 import express from "express";
+import path from "path";
+import { fileURLToPath } from "url";
+
 import makeWASocket, {
   useMultiFileAuthState,
   DisconnectReason
 } from "@whiskeysockets/baileys";
+
 import QRCode from "qrcode";
 import P from "pino";
 import { GoogleGenAI } from "@google/genai";
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+app.use(express.json());
+app.use(express.static(path.join(__dirname, "public")));
 
 const ai = new GoogleGenAI({
   apiKey: process.env.GEMINI_API_KEY
@@ -18,6 +28,7 @@ const ai = new GoogleGenAI({
 let qrImage = null;
 let botStatus = "Starting...";
 let isConnecting = false;
+let reconnectTimer = null;
 
 const SYSTEM_PROMPT = `
 You are the WhatsApp assistant of FLYING ARROW Free Fire Tournament.
@@ -61,29 +72,28 @@ Keep replies short. Do not send multiple steps
 unless the customer asks.
 `;
 
+// Dashboard home
 app.get("/", (req, res) => {
-  res.send(`
-    <h2>FLYING ARROW AI BOT ❤️</h2>
-    <p>Status: ${botStatus}</p>
-    <a href="/qr">Open QR Code</a>
-  `);
+  res.sendFile(path.join(__dirname, "public", "admin.html"));
 });
 
-app.get("/qr", (req, res) => {
-  if (!qrImage) {
-    return res.send(`
-      <h2>FLYING ARROW AI BOT</h2>
-      <p>${botStatus}</p>
-      <p>QR is not available. Refresh later.</p>
-    `);
-  }
-
-  res.send(`
-    <h2>WhatsApp QR Code</h2>
-    <img src="${qrImage}" width="300"/>
-  `);
+// Server health
+app.get("/health", (req, res) => {
+  res.json({ server: "online" });
 });
 
+// Dashboard status API
+app.get("/api/status", (req, res) => {
+  res.json({
+    status: botStatus,
+    whatsappConnected: botStatus === "WhatsApp Connected",
+    qrReady: Boolean(qrImage),
+    server: "online",
+    aiProvider: "Gemini"
+  });
+});
+
+// Temporary old status route
 app.get("/status", (req, res) => {
   res.json({ status: botStatus });
 });
@@ -93,19 +103,42 @@ app.listen(PORT, () => {
   connectWhatsApp();
 });
 
+// Gemini AI with two retries
 async function getAIReply(messageText) {
-  const response = await ai.models.generateContent({
-    model: "gemini-3.8-flash",
-    contents: `${SYSTEM_PROMPT}
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    try {
+      const response = await ai.models.generateContent({
+        model: "gemini-3.8-flash",
+        contents: `${SYSTEM_PROMPT}
 
 Customer message:
 ${messageText}
 
 Write only the reply to the customer.`
-  });
+      });
 
-  return response.text?.trim() ||
-    "জি ভাই, একটু পরে আবার মেসেজ করবেন ❤️";
+      return response.text?.trim() ||
+        "জি ভাই, একটু পরে আবার মেসেজ করবেন ❤️";
+
+    } catch (error) {
+      console.error(
+        `AI attempt ${attempt} failed:`,
+        error.message
+      );
+
+      const temporaryError =
+        /503|UNAVAILABLE|429|500|502|504|high demand/i
+          .test(error.message || "");
+
+      if (!temporaryError || attempt === 3) {
+        throw error;
+      }
+
+      await new Promise(resolve =>
+        setTimeout(resolve, attempt * 3000)
+      );
+    }
+  }
 }
 
 async function connectWhatsApp() {
@@ -157,7 +190,12 @@ async function connectWhatsApp() {
         botStatus = "Disconnected. Reconnecting...";
         console.log("WhatsApp disconnected. Reconnecting...");
 
-        setTimeout(connectWhatsApp, 5000);
+        if (reconnectTimer) clearTimeout(reconnectTimer);
+
+        reconnectTimer = setTimeout(() => {
+          reconnectTimer = null;
+          connectWhatsApp();
+        }, 5000);
       }
     });
 
@@ -169,22 +207,26 @@ async function connectWhatsApp() {
 
         const jid = msg.key.remoteJid;
 
-        if (!jid || jid === "status@broadcast" ||
-            jid.endsWith("@g.us")) continue;
+        if (
+          !jid ||
+          jid === "status@broadcast" ||
+          jid.endsWith("@g.us")
+        ) continue;
 
         const content = msg.message;
-        const text =
+
+        const messageText =
           content.conversation ||
           content.extendedTextMessage?.text ||
           content.imageMessage?.caption ||
           content.videoMessage?.caption;
 
-        if (!text?.trim()) continue;
+        if (!messageText?.trim()) continue;
 
         console.log("New WhatsApp message received");
 
         try {
-          const reply = await getAIReply(text);
+          const reply = await getAIReply(messageText);
 
           await sock.sendMessage(jid, {
             text: reply
@@ -195,9 +237,13 @@ async function connectWhatsApp() {
         } catch (error) {
           console.error("AI reply error:", error.message);
 
-          await sock.sendMessage(jid, {
-            text: "দুঃখিত ভাই, একটু সমস্যা হচ্ছে। আবার মেসেজ করবেন ❤️"
-          });
+          try {
+            await sock.sendMessage(jid, {
+              text: "দুঃখিত ভাই, একটু সমস্যা হচ্ছে। আবার মেসেজ করবেন ❤️"
+            });
+          } catch (sendError) {
+            console.error("WhatsApp send error:", sendError.message);
+          }
         }
       }
     });
@@ -209,6 +255,11 @@ async function connectWhatsApp() {
     botStatus = "Connection error";
     isConnecting = false;
 
-    setTimeout(connectWhatsApp, 10000);
+    if (reconnectTimer) clearTimeout(reconnectTimer);
+
+    reconnectTimer = setTimeout(() => {
+      reconnectTimer = null;
+      connectWhatsApp();
+    }, 10000);
   }
 }
