@@ -1,244 +1,52 @@
-
 <!DOCTYPE html>
 <html lang="bn">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>FLYING ARROW Admin Dashboard</title>
 <style>
-*{box-sizing:border-box}
-body{
-margin:0;background:#081225;color:white;
-font-family:Arial,sans-serif
-}
-header{
-padding:20px;background:#101e36;
-border-bottom:1px solid #263653
-}
-header h2{margin:0;color:#49a6ff}
-header p{margin:7px 0 0;color:#a8b8d0;font-size:13px}
-.container{padding:18px;max-width:1100px;margin:auto}
-.small{color:#9aacc7;font-size:13px}
-.grid{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(210px,1fr));
-gap:15px
-}
-.card{
-background:#12213b;border:1px solid #263b5e;
-padding:20px;border-radius:14px
-}
-.card h3{margin:0 0 12px;color:#c9d9f1;font-size:16px}
-.value{font-size:20px;font-weight:bold;overflow-wrap:anywhere}
-.online{color:#38d996}
-.offline{color:#ff6868}
-.waiting{color:#ffca65}
-section{margin-top:20px}
-button{
-background:#1679e9;color:white;border:0;
-padding:12px 17px;border-radius:8px;
-font-weight:bold;margin-top:10px;cursor:pointer
-}
-button:disabled{opacity:.5}
-#qrArea{
-background:white;color:#222;border-radius:10px;
-min-height:230px;padding:15px;
-display:flex;align-items:center;justify-content:center;
-text-align:center;overflow:hidden
-}
-#qrImage{width:220px;max-width:100%;height:auto}
-#qrMessage{color:#333}
-footer{text-align:center;color:#7587a4;padding:25px;font-size:12px}
+*{box-sizing:border-box}body{margin:0;background:#081225;color:#fff;font-family:Arial,sans-serif}header{padding:18px 20px;background:#101e36;border-bottom:1px solid #263653;position:sticky;top:0;z-index:5}header h2{margin:0;color:#49a6ff}header p{margin:6px 0 0;color:#a8b8d0;font-size:13px}.container{padding:16px;max-width:1150px;margin:auto}.small,.muted{color:#9aacc7;font-size:13px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px}.card{background:#12213b;border:1px solid #263b5e;padding:17px;border-radius:13px;margin-top:14px}.card h3{margin:0 0 12px;color:#c9d9f1;font-size:16px}.value{font-size:19px;font-weight:bold;overflow-wrap:anywhere}.online{color:#38d996}.offline{color:#ff6868}.waiting{color:#ffca65}.tabs{display:flex;gap:8px;overflow:auto;padding:14px 0 3px}.tab{white-space:nowrap;background:#172b49;border:1px solid #2a4268;padding:10px 13px;border-radius:9px;color:#cbdcf5;cursor:pointer}.tab.active{background:#1679e9;color:#fff}.panel{display:none}.panel.active{display:block}label{display:block;color:#b9cbe4;font-size:13px;margin:13px 0 6px}input,textarea,select{width:100%;background:#08172c;border:1px solid #344b6d;color:#fff;padding:11px;border-radius:8px;font:14px Arial}textarea{min-height:110px;resize:vertical}button{background:#1679e9;color:#fff;border:0;padding:11px 15px;border-radius:8px;font-weight:bold;margin:8px 6px 0 0;cursor:pointer}button.secondary{background:#263b5e}button.danger{background:#a83343}.status{padding:10px;border-radius:8px;background:#0b1a30;color:#a9c4e9;margin-top:10px;font-size:13px}.row{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:9px;align-items:end}.slot{border:1px solid #2b4265;background:#0d1b31;padding:12px;border-radius:10px;margin:10px 0}.slot h4{margin:0 0 7px;color:#75baff}.slot .row label{margin-top:5px}#qrArea{background:#fff;color:#222;border-radius:10px;min-height:210px;padding:14px;display:flex;align-items:center;justify-content:center;text-align:center;overflow:hidden}#qrImage{width:210px;max-width:100%}.chat{padding:10px;border-bottom:1px solid #293e5f;overflow-wrap:anywhere}.chat strong{color:#7dbdff}.hidden{display:none}footer{text-align:center;color:#7587a4;padding:25px;font-size:12px}
 </style>
 </head>
 <body>
-
-<header>
-<h2>FLYING ARROW E-SPORTS</h2>
-<p>Private AI Bot Control Panel</p>
-</header>
-
+<header><h2>FLYING ARROW E-SPORTS</h2><p>Private AI Bot Control Panel · Owner Dashboard</p></header>
 <div class="container">
-
-<h2>Welcome, Admin ❤️</h2>
-<p class="small">আপনার Tournament Bot-এর Control Center</p>
-
-<section class="grid">
-
-<div class="card">
-<h3>WhatsApp Status</h3>
-<div class="value waiting" id="waStatus">Checking...</div>
-<p class="small">WhatsApp Connection</p>
+<h2>Welcome, Admin ❤️</h2><p class="small">আপনার Tournament Bot-এর Control Center</p>
+<div class="grid">
+ <div class="card"><h3>WhatsApp Status</h3><div class="value waiting" id="waStatus">Checking...</div></div>
+ <div class="card"><h3>AI Provider</h3><div class="value online">Cloudflare AI</div><p class="small">Workers AI</p></div>
+ <div class="card"><h3>Bot Server</h3><div class="value waiting" id="serverStatus">Checking...</div></div>
+ <div class="card"><h3>Supabase</h3><div class="value waiting" id="dbStatus">Checking...</div></div>
 </div>
-
-<div class="card">
-<h3>AI Assistant</h3>
-<div class="value online">Gemini</div>
-<p class="small">AI Provider</p>
+<div class="tabs">
+ <button class="tab active" data-tab="overview">Overview</button><button class="tab" data-tab="knowledge">AI Knowledge</button><button class="tab" data-tab="payment">Payment</button><button class="tab" data-tab="slots">Schedule</button><button class="tab" data-tab="links">Group Links</button><button class="tab" data-tab="rules">Form & Rules</button><button class="tab" data-tab="admins">Admin Contacts</button><button class="tab" data-tab="inbox">Live Inbox</button>
 </div>
-
-<div class="card">
-<h3>Bot Server</h3>
-<div class="value waiting" id="serverStatus">Checking...</div>
-<p class="small">Render Server</p>
-</div>
-
+<section id="overview" class="panel active">
+ <div class="card"><h3>WhatsApp Live QR Code</h3><p class="small">WhatsApp → Linked Devices → Link a Device থেকে QR স্ক্যান করুন।</p><div id="qrArea"><span id="qrMessage">QR Code-এর জন্য অপেক্ষা করুন...</span></div><p class="small" id="qrStatus">Checking QR status...</p><button onclick="loadQR()">Refresh QR</button></div>
+ <div class="card"><h3>System Status</h3><div class="small" id="lastUpdate">Waiting for server...</div><div class="status">Dashboard থেকে Save করা সেটিংস পরবর্তী incoming message-এ Bot ব্যবহার করবে।</div><button class="danger" onclick="logout()">Logout</button></div>
 </section>
-
-<section class="card">
-<h3>WhatsApp Live QR Code</h3>
-<p class="small">WhatsApp Web থেকে Linked Devices অপশনে গিয়ে QR স্ক্যান করুন।</p>
-
-<div id="qrArea">
-<div id="qrMessage">QR Code-এর জন্য অপেক্ষা করুন...</div>
+<section id="knowledge" class="panel"><div class="card"><h3>AI Main Knowledge / Prompt</h3><p class="small">এখানে আপনার সম্পূর্ণ Bot Prompt লিখুন। Save করলে পরবর্তী মেসেজে নতুন Prompt ব্যবহার হবে।</p><textarea id="main_prompt" rows="18" placeholder="আপনার FLYING ARROW WhatsApp AI Bot-এর সম্পূর্ণ Prompt এখানে Paste করুন..."></textarea><button onclick="saveSettings(['main_prompt'])">Save AI Knowledge</button><div class="status" id="knowledgeMsg">Prompt এখনো লোড হয়নি।</div></div></section>
+<section id="payment" class="panel"><div class="card"><h3>Payment Settings</h3><label>Payment Numbers & Instructions</label><textarea id="payment_details" placeholder="bKash / Nagad / Rocket payment details"></textarea><label>Payment QR Image (PNG/JPG/WEBP · Max 2MB)</label><input type="file" id="qrUpload" accept="image/png,image/jpeg,image/webp"><button onclick="uploadPaymentQR()">Upload Payment QR</button><div class="status" id="paymentMsg">QR image upload করলে Supabase Storage-এ সংরক্ষিত হবে।</div><label>Saved QR URL</label><input id="payment_qr_url" readonly placeholder="QR upload করার পর URL দেখা যাবে"><button onclick="saveSettings(['payment_details'])">Save Payment Details</button></div></section>
+<section id="slots" class="panel"><div class="card"><h3>Tournament Schedule & Slot Manager</h3><p class="small">প্রতি ম্যাচের মোট ধারণক্ষমতা ১২টি। Booked Slots ও Status আপডেট করে Save করুন।</p><div id="slotList">Loading slots...</div><button onclick="loadSlots()">Refresh Schedule</button><div class="status" id="slotMsg"></div></div></section>
+<section id="links" class="panel"><div class="card"><h3>Match-wise Group Links</h3><p class="small">JSON format-এ প্রতিটি ম্যাচের সঠিক WhatsApp Group Link দিন। Key অবশ্যই slot_key-এর সঙ্গে মিলতে হবে।</p><textarea id="group_links" rows="12" placeholder='{"3_pm":"https://chat.whatsapp.com/..."}'></textarea><button onclick="saveJsonSetting('group_links')">Save Group Links</button><div class="status" id="linksMsg"></div></div></section>
+<section id="rules" class="panel"><div class="card"><h3>Team Registration Form</h3><textarea id="team_form" rows="7"></textarea><label>Booking Rules</label><textarea id="booking_rules" rows="5"></textarea><button onclick="saveSettings(['team_form','booking_rules'])">Save Form & Rules</button><div class="status" id="rulesMsg"></div></div></section>
+<section id="admins" class="panel"><div class="card"><h3>Admin Contacts</h3><p class="small">JSON format-এ Admin-এর নাম ও যোগাযোগের তথ্য লিখুন।</p><textarea id="admin_contacts" rows="9" placeholder='{"ADMIN LIMON":"01624102776"}'></textarea><button onclick="saveJsonSetting('admin_contacts')">Save Admin Contacts</button><div class="status" id="adminsMsg"></div></div></section>
+<section id="inbox" class="panel"><div class="card"><h3>Recent Customer Chats</h3><p class="small">বর্তমান সার্ভার চালু থাকার সময়ের সাম্প্রতিক কথোপকথন। সার্ভার Restart হলে এই In-memory history মুছে যাবে।</p><button onclick="loadChats()">Refresh Chats</button><div id="chatList"></div></div></section>
 </div>
-
-<p class="small" id="qrStatus">Checking QR status...</p>
-<button onclick="loadQR()">Refresh QR</button>
-</section>
-
-<section class="grid">
-
-<div class="card">
-<h3>Live Inbox</h3>
-<p class="small">Customer messages এবং Admin replies</p>
-<button disabled>Coming Soon</button>
-</div>
-
-<div class="card">
-<h3>AI Settings</h3>
-<p class="small">AI Provider এবং Bot Prompt</p>
-<button disabled>Coming Soon</button>
-</div>
-
-<div class="card">
-<h3>Slot Manager</h3>
-<p class="small">Slot Price এবং Availability</p>
-<button disabled>Coming Soon</button>
-</div>
-
-<div class="card">
-<h3>Payment Settings</h3>
-<p class="small">bKash, Nagad এবং Payment QR</p>
-<button disabled>Coming Soon</button>
-</div>
-
-</section>
-
-<section class="card">
-<h3>System Status</h3>
-<div class="small" id="lastUpdate">Waiting for server...</div>
-<button onclick="logout()">Logout</button>
-</section>
-
-</div>
-
 <footer>FLYING ARROW E-SPORTS © 2026</footer>
-
 <script>
-async function updateDashboard() {
-  const wa = document.getElementById("waStatus");
-  const server = document.getElementById("serverStatus");
-  const update = document.getElementById("lastUpdate");
-
-  try {
-    const response = await fetch("/api/status", {
-      cache: "no-store"
-    });
-
-    if (response.status === 401) {
-      location.href = "/login";
-      return;
-    }
-
-    if (!response.ok) throw new Error("Server error");
-
-    const data = await response.json();
-
-    server.textContent = "ONLINE";
-    server.className = "value online";
-
-    wa.textContent = data.status || "Unknown";
-    wa.className = data.whatsappConnected
-      ? "value online"
-      : "value waiting";
-
-    update.textContent =
-      "Last updated: " + new Date().toLocaleTimeString();
-
-    if (data.qrReady) {
-      loadQR();
-    } else if (data.whatsappConnected) {
-      document.getElementById("qrArea").innerHTML =
-        '<div id="qrMessage">WhatsApp Connected ❤️<br>QR Code এখন প্রয়োজন নেই।</div>';
-      document.getElementById("qrStatus").textContent =
-        "আপনার WhatsApp ইতিমধ্যে Connected।";
-    } else {
-      document.getElementById("qrArea").innerHTML =
-        '<div id="qrMessage">QR Code-এর জন্য অপেক্ষা করুন...</div>';
-      document.getElementById("qrStatus").textContent =
-        "QR এখনো তৈরি হয়নি।";
-    }
-
-  } catch (error) {
-    server.textContent = "OFFLINE";
-    server.className = "value offline";
-    wa.textContent = "Unavailable";
-    wa.className = "value offline";
-    update.textContent = "Server connection failed.";
-  }
-}
-
-async function loadQR() {
-  const area = document.getElementById("qrArea");
-  const status = document.getElementById("qrStatus");
-
-  try {
-    const response = await fetch("/api/qr", {
-      cache: "no-store"
-    });
-
-    if (response.status === 401) {
-      location.href = "/login";
-      return;
-    }
-
-    if (!response.ok) throw new Error("QR request failed");
-
-    const data = await response.json();
-
-    if (data.qr) {
-      area.innerHTML = "";
-      const img = document.createElement("img");
-      img.id = "qrImage";
-      img.alt = "WhatsApp QR Code";
-      img.src = data.qr;
-      area.appendChild(img);
-      status.textContent =
-        "QR Ready — WhatsApp থেকে Scan করুন।";
-    } else {
-      area.innerHTML =
-        '<div id="qrMessage">এখন QR Code পাওয়া যাচ্ছে না।</div>';
-      status.textContent =
-        "WhatsApp Connected অথবা QR তৈরির অপেক্ষায় আছে।";
-    }
-
-  } catch (error) {
-    status.textContent = "QR load failed. আবার চেষ্টা করুন।";
-  }
-}
-
-async function logout() {
-  try {
-    await fetch("/api/logout", { method: "POST" });
-  } finally {
-    location.href = "/login";
-  }
-}
-
-updateDashboard();
-setInterval(updateDashboard, 3000);
+const $=id=>document.getElementById(id);
+let currentSettings={};
+document.querySelectorAll('.tab').forEach(btn=>btn.addEventListener('click',()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));btn.classList.add('active');$(btn.dataset.tab).classList.add('active');if(btn.dataset.tab==='slots')loadSlots();if(btn.dataset.tab==='inbox')loadChats();}));
+async function api(url,options={}){const r=await fetch(url,{cache:'no-store',...options,headers:{...(options.headers||{})}});if(r.status===401){location.href='/login';throw Error('Admin login required');}const d=await r.json().catch(()=>({}));if(!r.ok)throw Error(d.error||'Request failed');return d;}
+async function updateDashboard(){try{const d=await api('/api/status');$('serverStatus').textContent='ONLINE';$('serverStatus').className='value online';$('waStatus').textContent=d.status||'Unknown';$('waStatus').className='value '+(d.whatsappConnected?'online':'waiting');$('dbStatus').textContent=d.database==='online'?'CONNECTED':'OFFLINE';$('dbStatus').className='value '+(d.database==='online'?'online':'offline');$('lastUpdate').textContent='Last updated: '+new Date().toLocaleTimeString();if(d.qrReady)loadQR();else if(d.whatsappConnected){$('qrArea').innerHTML='<span>WhatsApp Connected ❤️<br>QR Code এখন প্রয়োজন নেই।</span>';$('qrStatus').textContent='WhatsApp Connected';}}catch(e){$('serverStatus').textContent='OFFLINE';$('serverStatus').className='value offline';$('dbStatus').textContent='Unavailable';$('dbStatus').className='value offline';$('lastUpdate').textContent=e.message;}}
+async function loadQR(){try{const d=await api('/api/qr');if(d.qr){$('qrArea').innerHTML='';const img=document.createElement('img');img.id='qrImage';img.src=d.qr;img.alt='WhatsApp QR';$('qrArea').appendChild(img);$('qrStatus').textContent='QR Ready — WhatsApp থেকে Scan করুন।';}else if(!$('waStatus').textContent.includes('Connected')){$('qrArea').innerHTML='<span>QR Code-এর জন্য অপেক্ষা করুন...</span>';$('qrStatus').textContent='QR এখনো তৈরি হয়নি।';}}catch(e){$('qrStatus').textContent=e.message;}}
+async function loadSettings(){try{const d=await api('/api/settings');currentSettings=d.settings||{};for(const k of ['main_prompt','payment_details','payment_qr_url','team_form','booking_rules'])if($(k))$(k).value=currentSettings[k]||'';for(const k of ['group_links','admin_contacts'])$(k).value=JSON.stringify(currentSettings[k]||{},null,2);$('knowledgeMsg').textContent='Saved prompt loaded.';}catch(e){$('knowledgeMsg').textContent='Settings load error: '+e.message;}}
+async function saveSettings(keys){try{const body={};keys.forEach(k=>body[k]=$(k).value);await api('/api/settings',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});$('knowledgeMsg').textContent='';$('paymentMsg').textContent='';$('rulesMsg').textContent='';alert('সফলভাবে Save হয়েছে ❤️');}catch(e){alert('Save error: '+e.message);}}
+async function saveJsonSetting(key){try{const value=JSON.parse($(key).value||'{}');if(!value||Array.isArray(value)||typeof value!=='object')throw Error('JSON object দিন');await api('/api/settings',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({[key]:value})});alert('সফলভাবে Save হয়েছে ❤️');}catch(e){alert('JSON/Save Error: '+e.message);}}
+async function uploadPaymentQR(){const f=$('qrUpload').files[0];if(!f){$('paymentMsg').textContent='আগে একটি QR ছবি নির্বাচন করুন।';return;}if(f.size>2*1024*1024){$('paymentMsg').textContent='ছবির সাইজ 2MB-এর বেশি।';return;}try{$('paymentMsg').textContent='Uploading...';const data=await new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(r.result);r.onerror=reject;r.readAsDataURL(f);});const d=await api('/api/settings/payment-qr',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({imageData:data,mimeType:f.type})});$('payment_qr_url').value=d.payment_qr_url;$('paymentMsg').textContent='QR image uploaded successfully ❤️';}catch(e){$('paymentMsg').textContent='Upload error: '+e.message;}}
+async function loadSlots(){try{const d=await api('/api/slots');$('slotList').innerHTML='';for(const s of d.slots||[]){const box=document.createElement('div');box.className='slot';box.innerHTML=`<h4></h4><div class="row"><div><label>Price (TK)</label><input type="number" min="1" class="price"></div><div><label>Booked Slots / 12</label><input type="number" min="0" max="12" class="booked"></div><div><label>Status</label><select class="statusSelect"><option>AVAILABLE</option><option>FULL</option><option>OFF</option></select></div><div><button class="saveSlot">Save Match</button></div></div><p class="small key"></p>`;box.querySelector('h4').textContent=s.match_name;box.querySelector('.price').value=s.price_tk;box.querySelector('.booked').value=s.booked_slots;box.querySelector('.statusSelect').value=s.status;box.querySelector('.key').textContent='Key: '+s.slot_key+' · Remaining: '+Math.max(0,s.total_slots-s.booked_slots);box.querySelector('.saveSlot').addEventListener('click',async()=>{try{const price=Number(box.querySelector('.price').value),booked=Number(box.querySelector('.booked').value);if(!Number.isInteger(price)||price<1||!Number.isInteger(booked)||booked<0||booked>12)throw Error('Price বা Booked Slots সঠিক দিন');await api('/api/slots/'+encodeURIComponent(s.slot_key),{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({price_tk:price,booked_slots:booked,status:box.querySelector('.statusSelect').value})});$('slotMsg').textContent=s.match_name+' updated successfully ❤️';loadSlots();}catch(e){$('slotMsg').textContent=e.message;}});$('slotList').appendChild(box);}}catch(e){$('slotList').textContent='Schedule load error: '+e.message;}}
+async function loadChats(){try{const d=await api('/api/chats');$('chatList').innerHTML='';if(!d.chats?.length){$('chatList').textContent='এখনো কোনো chat history নেই।';return;}for(const c of d.chats){const div=document.createElement('div');div.className='chat';const title=document.createElement('strong');title.textContent=c.jid;div.appendChild(title);for(const m of c.messages){const p=document.createElement('p');p.className='small';p.textContent=(m.role==='user'?'Customer: ':'Bot: ')+m.content;div.appendChild(p);}$('chatList').appendChild(div);}}catch(e){$('chatList').textContent=e.message;}}
+async function logout(){try{await fetch('/api/logout',{method:'POST'});}finally{location.href='/login';}}
+loadSettings();updateDashboard();loadQR();setInterval(updateDashboard,5000);
 </script>
-
-</body>
-</html>
+</body></html>
