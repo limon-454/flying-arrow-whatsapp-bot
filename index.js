@@ -95,7 +95,7 @@ app.listen(PORT, () => {
 
 async function getAIReply(messageText) {
   const response = await ai.models.generateContent({
-    model: "gemini-2.5-flash",
+    model: "gemini-3.8-flash",
     contents: `${SYSTEM_PROMPT}
 
 Customer message:
