@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="bn">
 <head>
@@ -15,16 +16,18 @@ h3{color:#c9d9f1}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:15px}
 .card{background:#12213b;border:1px solid #263b5e;padding:20px;border-radius:14px}
 .card h3{margin:0 0 12px;font-size:16px}
-.value{font-size:23px;font-weight:bold;color:#49a6ff}
+.value{font-size:20px;font-weight:bold;color:#49a6ff;overflow-wrap:anywhere}
 .small{color:#9aacc7;font-size:13px}
 .status{color:#ffca65}
+.online{color:#38d996}
+.offline{color:#ff6868}
 button{background:#1679e9;color:white;border:0;padding:12px 17px;border-radius:8px;font-weight:bold;margin-top:10px}
-button:disabled{opacity:.5}
 section{margin-top:25px}
 footer{text-align:center;color:#7587a4;padding:25px;font-size:12px}
 </style>
 </head>
 <body>
+
 <header>
   <h2>FLYING ARROW E-SPORTS</h2>
   <p>Private AI Bot Control Panel</p>
@@ -40,11 +43,13 @@ footer{text-align:center;color:#7587a4;padding:25px;font-size:12px}
       <div class="value status" id="waStatus">Checking...</div>
       <p class="small">WhatsApp Connection</p>
     </div>
+
     <div class="card">
       <h3>AI Assistant</h3>
       <div class="value">Gemini</div>
       <p class="small">AI Provider</p>
     </div>
+
     <div class="card">
       <h3>Bot Server</h3>
       <div class="value status" id="serverStatus">Checking...</div>
@@ -54,44 +59,90 @@ footer{text-align:center;color:#7587a4;padding:25px;font-size:12px}
 
   <section class="card">
     <h3>WhatsApp Connection</h3>
-    <p class="small">এখানে আপনার WhatsApp QR Code দেখানো হবে।</p>
-    <div style="background:#fff;color:#222;padding:35px;text-align:center;border-radius:10px">
-      QR Code will appear here
+    <p class="small">WhatsApp QR Connection</p>
+    <div id="qrArea" style="background:#fff;color:#222;padding:30px;text-align:center;border-radius:10px">
+      QR Code নিরাপদভাবে দেখানোর ব্যবস্থা পরবর্তী ধাপে যুক্ত হবে।
     </div>
-    <button disabled>Refresh QR</button>
-    <p class="small">Live QR Connection পরবর্তী ধাপে যুক্ত হবে।</p>
+    <p class="small">QR দেখানোর আগে Private Admin Login যুক্ত করা হবে।</p>
   </section>
 
   <section class="grid">
     <div class="card">
       <h3>Live Inbox</h3>
       <p class="small">Customer messages এবং Admin replies</p>
-      <button disabled>Open Inbox</button>
+      <button disabled>Coming Soon</button>
     </div>
+
     <div class="card">
       <h3>AI Settings</h3>
       <p class="small">AI Provider এবং Bot Prompt</p>
-      <button disabled>Manage AI</button>
+      <button disabled>Coming Soon</button>
     </div>
+
     <div class="card">
       <h3>Slot Manager</h3>
       <p class="small">Slot Price এবং Availability</p>
-      <button disabled>Manage Slots</button>
+      <button disabled>Coming Soon</button>
     </div>
+
     <div class="card">
       <h3>Payment Settings</h3>
       <p class="small">bKash, Nagad এবং Payment QR</p>
-      <button disabled>Manage Payment</button>
+      <button disabled>Coming Soon</button>
     </div>
   </section>
 
   <section class="card">
-    <h3>System Logs</h3>
-    <p class="small">Bot activity এবং Error Logs এখানে দেখা যাবে।</p>
-    <div id="logs">Live Logs will appear here.</div>
+    <h3>System Status</h3>
+    <div id="lastUpdate" class="small">Waiting for server...</div>
   </section>
 </div>
 
 <footer>FLYING ARROW E-SPORTS © 2026</footer>
+
+<script>
+async function updateDashboard() {
+  const wa = document.getElementById("waStatus");
+  const server = document.getElementById("serverStatus");
+  const update = document.getElementById("lastUpdate");
+
+  try {
+    const response = await fetch("/api/status", {
+      cache: "no-store"
+    });
+
+    if (!response.ok) throw new Error("Server response error");
+
+    const data = await response.json();
+
+    server.textContent = "ONLINE";
+    server.className = "value online";
+
+    wa.textContent = data.status || "Unknown";
+
+    if (data.whatsappConnected) {
+      wa.className = "value online";
+    } else {
+      wa.className = "value status";
+    }
+
+    update.textContent =
+      "Last updated: " + new Date().toLocaleTimeString();
+
+  } catch (error) {
+    server.textContent = "OFFLINE";
+    server.className = "value offline";
+
+    wa.textContent = "Unavailable";
+    wa.className = "value offline";
+
+    update.textContent = "Server connection failed.";
+  }
+}
+
+updateDashboard();
+setInterval(updateDashboard, 3000);
+</script>
+
 </body>
 </html>
