@@ -3,99 +3,134 @@
 <html lang="bn">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>FLYING ARROW - Admin Panel</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FLYING ARROW Admin Dashboard</title>
 <style>
 *{box-sizing:border-box}
-body{margin:0;background:#081225;color:#fff;font-family:Arial,sans-serif}
-header{padding:20px;background:#101e36;border-bottom:1px solid #263653}
+body{
+margin:0;background:#081225;color:white;
+font-family:Arial,sans-serif
+}
+header{
+padding:20px;background:#101e36;
+border-bottom:1px solid #263653
+}
 header h2{margin:0;color:#49a6ff}
 header p{margin:7px 0 0;color:#a8b8d0;font-size:13px}
-.container{padding:20px;max-width:1100px;margin:auto}
-h3{color:#c9d9f1}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:15px}
-.card{background:#12213b;border:1px solid #263b5e;padding:20px;border-radius:14px}
-.card h3{margin:0 0 12px;font-size:16px}
-.value{font-size:20px;font-weight:bold;color:#49a6ff;overflow-wrap:anywhere}
+.container{padding:18px;max-width:1100px;margin:auto}
 .small{color:#9aacc7;font-size:13px}
-.status{color:#ffca65}
+.grid{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(210px,1fr));
+gap:15px
+}
+.card{
+background:#12213b;border:1px solid #263b5e;
+padding:20px;border-radius:14px
+}
+.card h3{margin:0 0 12px;color:#c9d9f1;font-size:16px}
+.value{font-size:20px;font-weight:bold;overflow-wrap:anywhere}
 .online{color:#38d996}
 .offline{color:#ff6868}
-button{background:#1679e9;color:white;border:0;padding:12px 17px;border-radius:8px;font-weight:bold;margin-top:10px}
-section{margin-top:25px}
+.waiting{color:#ffca65}
+section{margin-top:20px}
+button{
+background:#1679e9;color:white;border:0;
+padding:12px 17px;border-radius:8px;
+font-weight:bold;margin-top:10px;cursor:pointer
+}
+button:disabled{opacity:.5}
+#qrArea{
+background:white;color:#222;border-radius:10px;
+min-height:230px;padding:15px;
+display:flex;align-items:center;justify-content:center;
+text-align:center;overflow:hidden
+}
+#qrImage{width:220px;max-width:100%;height:auto}
+#qrMessage{color:#333}
 footer{text-align:center;color:#7587a4;padding:25px;font-size:12px}
 </style>
 </head>
 <body>
 
 <header>
-  <h2>FLYING ARROW E-SPORTS</h2>
-  <p>Private AI Bot Control Panel</p>
+<h2>FLYING ARROW E-SPORTS</h2>
+<p>Private AI Bot Control Panel</p>
 </header>
 
 <div class="container">
-  <h2>Welcome, Admin ❤️</h2>
-  <p class="small">আপনার Tournament Bot-এর Control Center</p>
 
-  <section class="grid">
-    <div class="card">
-      <h3>WhatsApp Status</h3>
-      <div class="value status" id="waStatus">Checking...</div>
-      <p class="small">WhatsApp Connection</p>
-    </div>
+<h2>Welcome, Admin ❤️</h2>
+<p class="small">আপনার Tournament Bot-এর Control Center</p>
 
-    <div class="card">
-      <h3>AI Assistant</h3>
-      <div class="value">Gemini</div>
-      <p class="small">AI Provider</p>
-    </div>
+<section class="grid">
 
-    <div class="card">
-      <h3>Bot Server</h3>
-      <div class="value status" id="serverStatus">Checking...</div>
-      <p class="small">Render Server</p>
-    </div>
-  </section>
+<div class="card">
+<h3>WhatsApp Status</h3>
+<div class="value waiting" id="waStatus">Checking...</div>
+<p class="small">WhatsApp Connection</p>
+</div>
 
-  <section class="card">
-    <h3>WhatsApp Connection</h3>
-    <p class="small">WhatsApp QR Connection</p>
-    <div id="qrArea" style="background:#fff;color:#222;padding:30px;text-align:center;border-radius:10px">
-      QR Code নিরাপদভাবে দেখানোর ব্যবস্থা পরবর্তী ধাপে যুক্ত হবে।
-    </div>
-    <p class="small">QR দেখানোর আগে Private Admin Login যুক্ত করা হবে।</p>
-  </section>
+<div class="card">
+<h3>AI Assistant</h3>
+<div class="value online">Gemini</div>
+<p class="small">AI Provider</p>
+</div>
 
-  <section class="grid">
-    <div class="card">
-      <h3>Live Inbox</h3>
-      <p class="small">Customer messages এবং Admin replies</p>
-      <button disabled>Coming Soon</button>
-    </div>
+<div class="card">
+<h3>Bot Server</h3>
+<div class="value waiting" id="serverStatus">Checking...</div>
+<p class="small">Render Server</p>
+</div>
 
-    <div class="card">
-      <h3>AI Settings</h3>
-      <p class="small">AI Provider এবং Bot Prompt</p>
-      <button disabled>Coming Soon</button>
-    </div>
+</section>
 
-    <div class="card">
-      <h3>Slot Manager</h3>
-      <p class="small">Slot Price এবং Availability</p>
-      <button disabled>Coming Soon</button>
-    </div>
+<section class="card">
+<h3>WhatsApp Live QR Code</h3>
+<p class="small">WhatsApp Web থেকে Linked Devices অপশনে গিয়ে QR স্ক্যান করুন।</p>
 
-    <div class="card">
-      <h3>Payment Settings</h3>
-      <p class="small">bKash, Nagad এবং Payment QR</p>
-      <button disabled>Coming Soon</button>
-    </div>
-  </section>
+<div id="qrArea">
+<div id="qrMessage">QR Code-এর জন্য অপেক্ষা করুন...</div>
+</div>
 
-  <section class="card">
-    <h3>System Status</h3>
-    <div id="lastUpdate" class="small">Waiting for server...</div>
-  </section>
+<p class="small" id="qrStatus">Checking QR status...</p>
+<button onclick="loadQR()">Refresh QR</button>
+</section>
+
+<section class="grid">
+
+<div class="card">
+<h3>Live Inbox</h3>
+<p class="small">Customer messages এবং Admin replies</p>
+<button disabled>Coming Soon</button>
+</div>
+
+<div class="card">
+<h3>AI Settings</h3>
+<p class="small">AI Provider এবং Bot Prompt</p>
+<button disabled>Coming Soon</button>
+</div>
+
+<div class="card">
+<h3>Slot Manager</h3>
+<p class="small">Slot Price এবং Availability</p>
+<button disabled>Coming Soon</button>
+</div>
+
+<div class="card">
+<h3>Payment Settings</h3>
+<p class="small">bKash, Nagad এবং Payment QR</p>
+<button disabled>Coming Soon</button>
+</div>
+
+</section>
+
+<section class="card">
+<h3>System Status</h3>
+<div class="small" id="lastUpdate">Waiting for server...</div>
+<button onclick="logout()">Logout</button>
+</section>
+
 </div>
 
 <footer>FLYING ARROW E-SPORTS © 2026</footer>
@@ -111,7 +146,12 @@ async function updateDashboard() {
       cache: "no-store"
     });
 
-    if (!response.ok) throw new Error("Server response error");
+    if (response.status === 401) {
+      location.href = "/login";
+      return;
+    }
+
+    if (!response.ok) throw new Error("Server error");
 
     const data = await response.json();
 
@@ -119,24 +159,80 @@ async function updateDashboard() {
     server.className = "value online";
 
     wa.textContent = data.status || "Unknown";
-
-    if (data.whatsappConnected) {
-      wa.className = "value online";
-    } else {
-      wa.className = "value status";
-    }
+    wa.className = data.whatsappConnected
+      ? "value online"
+      : "value waiting";
 
     update.textContent =
       "Last updated: " + new Date().toLocaleTimeString();
 
+    if (data.qrReady) {
+      loadQR();
+    } else if (data.whatsappConnected) {
+      document.getElementById("qrArea").innerHTML =
+        '<div id="qrMessage">WhatsApp Connected ❤️<br>QR Code এখন প্রয়োজন নেই।</div>';
+      document.getElementById("qrStatus").textContent =
+        "আপনার WhatsApp ইতিমধ্যে Connected।";
+    } else {
+      document.getElementById("qrArea").innerHTML =
+        '<div id="qrMessage">QR Code-এর জন্য অপেক্ষা করুন...</div>';
+      document.getElementById("qrStatus").textContent =
+        "QR এখনো তৈরি হয়নি।";
+    }
+
   } catch (error) {
     server.textContent = "OFFLINE";
     server.className = "value offline";
-
     wa.textContent = "Unavailable";
     wa.className = "value offline";
-
     update.textContent = "Server connection failed.";
+  }
+}
+
+async function loadQR() {
+  const area = document.getElementById("qrArea");
+  const status = document.getElementById("qrStatus");
+
+  try {
+    const response = await fetch("/api/qr", {
+      cache: "no-store"
+    });
+
+    if (response.status === 401) {
+      location.href = "/login";
+      return;
+    }
+
+    if (!response.ok) throw new Error("QR request failed");
+
+    const data = await response.json();
+
+    if (data.qr) {
+      area.innerHTML = "";
+      const img = document.createElement("img");
+      img.id = "qrImage";
+      img.alt = "WhatsApp QR Code";
+      img.src = data.qr;
+      area.appendChild(img);
+      status.textContent =
+        "QR Ready — WhatsApp থেকে Scan করুন।";
+    } else {
+      area.innerHTML =
+        '<div id="qrMessage">এখন QR Code পাওয়া যাচ্ছে না।</div>';
+      status.textContent =
+        "WhatsApp Connected অথবা QR তৈরির অপেক্ষায় আছে।";
+    }
+
+  } catch (error) {
+    status.textContent = "QR load failed. আবার চেষ্টা করুন।";
+  }
+}
+
+async function logout() {
+  try {
+    await fetch("/api/logout", { method: "POST" });
+  } finally {
+    location.href = "/login";
   }
 }
 
