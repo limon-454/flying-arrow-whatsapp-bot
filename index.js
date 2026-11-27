@@ -1,4 +1,3 @@
-
 import express from "express";
 import path from "path";
 import crypto from "crypto";
@@ -11,7 +10,6 @@ import makeWASocket, {
 
 import QRCode from "qrcode";
 import P from "pino";
-import { GoogleGenAI } from "@google/genai";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -20,10 +18,6 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(express.json({ limit: "20kb" }));
-
-const ai = new GoogleGenAI({
-  apiKey: process.env.GEMINI_API_KEY
-});
 
 let qrImage = null;
 let botStatus = "Starting...";
@@ -236,7 +230,7 @@ app.get("/api/status", requireAdmin, (req, res) => {
     whatsappConnected: botStatus === "WhatsApp Connected",
     qrReady: Boolean(qrImage),
     server: "online",
-    aiProvider: "Gemini"
+    aiProvider: "OpenRouter"
   });
 });
 
@@ -301,33 +295,70 @@ app.listen(PORT, () => {
 });
 
 // ===============================
-// GEMINI AI
+// OPENROUTER AI
 // ===============================
 
 async function getAIReply(messageText) {
+  const apiKey = process.env.OPENROUTER_API_KEY;
+
+  if (!apiKey) {
+    throw new Error("OPENROUTER_API_KEY is missing");
+  }
+
   for (let attempt = 1; attempt <= 3; attempt++) {
     try {
-      const response = await ai.models.generateContent({
-        model: "gemini-3.8-flash",
-        contents: `${SYSTEM_PROMPT}
+      const response = await fetch(
+        "https://openrouter.ai/api/v1/chat/completions",
+        {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${apiKey}`,
+            "Content-Type": "application/json",
+            "X-Title": "FLYING ARROW AI BOT"
+          },
+          body: JSON.stringify({
+            model: "openrouter/free",
+            messages: [
+              {
+                role: "system",
+                content: SYSTEM_PROMPT
+              },
+              {
+                role: "user",
+                content: messageText
+              }
+            ],
+            temperature: 0.5,
+            max_tokens: 200
+          })
+        }
+      );
 
-Customer message:
-${messageText}
+      const data = await response.json();
 
-Write only the reply to the customer.`
-      });
+      if (!response.ok) {
+        throw new Error(
+          data.error?.message ||
+          `OpenRouter HTTP ${response.status}`
+        );
+      }
 
-      return response.text?.trim() ||
-        "জি ভাই, একটু পরে আবার মেসেজ করবেন ❤️";
+      const reply = data.choices?.[0]?.message?.content;
+
+      if (typeof reply !== "string" || !reply.trim()) {
+        throw new Error("OpenRouter returned an empty reply");
+      }
+
+      return reply.trim();
 
     } catch (error) {
       console.error(
-        "AI attempt " + attempt + " failed:",
+        "OpenRouter attempt " + attempt + " failed:",
         error.message
       );
 
       const temporaryError =
-        /503|UNAVAILABLE|429|500|502|504|high demand/i
+        /429|500|502|503|504|timeout|temporarily|rate limit|high demand/i
           .test(error.message || "");
 
       if (!temporaryError || attempt === 3) {
@@ -436,10 +467,10 @@ async function connectWhatsApp() {
             text: reply
           });
 
-          console.log("AI reply sent successfully");
+          console.log("OpenRouter AI reply sent successfully");
 
         } catch (error) {
-          console.error("AI reply error:", error.message);
+          console.error("OpenRouter AI reply error:", error.message);
 
           try {
             await sock.sendMessage(jid, {
@@ -466,4 +497,4 @@ async function connectWhatsApp() {
       connectWhatsApp();
     }, 10000);
   }
-}
+        }
