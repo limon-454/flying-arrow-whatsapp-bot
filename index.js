@@ -230,7 +230,7 @@ app.get("/api/status", requireAdmin, (req, res) => {
     whatsappConnected: botStatus === "WhatsApp Connected",
     qrReady: Boolean(qrImage),
     server: "online",
-    aiProvider: "OpenRouter"
+    aiProvider: "SambaNova"
   });
 });
 
@@ -295,29 +295,31 @@ app.listen(PORT, () => {
 });
 
 // ===============================
-// OPENROUTER AI
+// SAMBANOVA AI
 // ===============================
 
 async function getAIReply(messageText) {
-  const apiKey = process.env.OPENROUTER_API_KEY;
+  const apiKey = process.env.SAMBANOVA_API_KEY;
 
   if (!apiKey) {
-    throw new Error("OPENROUTER_API_KEY is missing");
+    throw new Error("SAMBANOVA_API_KEY is missing");
   }
 
   for (let attempt = 1; attempt <= 3; attempt++) {
     try {
+      console.log("SambaNova request attempt:", attempt);
+
       const response = await fetch(
-        "https://openrouter.ai/api/v1/chat/completions",
+        "https://api.sambanova.ai/v1/chat/completions",
         {
           method: "POST",
           headers: {
             "Authorization": `Bearer ${apiKey}`,
-            "Content-Type": "application/json",
-            "X-Title": "FLYING ARROW AI BOT"
+            "Content-Type": "application/json"
           },
           body: JSON.stringify({
-            model: "openrouter/free",
+            model: "GLM-5.3",
+            stream: false,
             messages: [
               {
                 role: "system",
@@ -328,37 +330,73 @@ async function getAIReply(messageText) {
                 content: messageText
               }
             ],
-            temperature: 0.5,
-            max_tokens: 200
-          })
+            max_tokens: 300,
+            temperature: 0.3
+          }),
+          signal: AbortSignal.timeout(45000)
         }
       );
 
-      const data = await response.json();
+      const responseText = await response.text();
 
-      if (!response.ok) {
+      let data;
+
+      try {
+        data = JSON.parse(responseText);
+      } catch {
         throw new Error(
-          data.error?.message ||
-          `OpenRouter HTTP ${response.status}`
+          "Invalid API response: " + responseText.slice(0, 300)
         );
       }
 
-      const reply = data.choices?.[0]?.message?.content;
-
-      if (typeof reply !== "string" || !reply.trim()) {
-        throw new Error("OpenRouter returned an empty reply");
+      if (!response.ok) {
+        throw new Error(
+          `SambaNova HTTP ${response.status}: ` +
+          JSON.stringify(data.error || data).slice(0, 500)
+        );
       }
 
-      return reply.trim();
+      const choice = data.choices?.[0];
+      const content = choice?.message?.content;
+
+      let reply = "";
+
+      if (typeof content === "string") {
+        reply = content.trim();
+      } else if (Array.isArray(content)) {
+        reply = content
+          .filter(item => item.type === "text")
+          .map(item => item.text || "")
+          .join("")
+          .trim();
+      }
+
+      if (!reply) {
+        console.error(
+          "SambaNova empty response details:",
+          JSON.stringify({
+            model: data.model,
+            finish_reason: choice?.finish_reason,
+            message: choice?.message,
+            usage: data.usage
+          }).slice(0, 1500)
+        );
+
+        throw new Error("SambaNova returned an empty reply");
+      }
+
+      console.log("SambaNova AI reply generated successfully");
+
+      return reply;
 
     } catch (error) {
       console.error(
-        "OpenRouter attempt " + attempt + " failed:",
+        "SambaNova attempt " + attempt + " failed:",
         error.message
       );
 
       const temporaryError =
-        /429|500|502|503|504|timeout|temporarily|rate limit|high demand/i
+        /429|500|502|503|504|timeout|temporarily|rate limit|empty reply/i
           .test(error.message || "");
 
       if (!temporaryError || attempt === 3) {
@@ -366,7 +404,7 @@ async function getAIReply(messageText) {
       }
 
       await new Promise(resolve =>
-        setTimeout(resolve, attempt * 3000)
+        setTimeout(resolve, attempt * 5000)
       );
     }
   }
@@ -467,10 +505,10 @@ async function connectWhatsApp() {
             text: reply
           });
 
-          console.log("OpenRouter AI reply sent successfully");
+          console.log("SambaNova AI reply sent successfully");
 
         } catch (error) {
-          console.error("OpenRouter AI reply error:", error.message);
+          console.error("SambaNova AI reply error:", error.message);
 
           try {
             await sock.sendMessage(jid, {
@@ -497,4 +535,4 @@ async function connectWhatsApp() {
       connectWhatsApp();
     }, 10000);
   }
-        }
+}
