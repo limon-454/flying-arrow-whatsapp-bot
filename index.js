@@ -1,3 +1,4 @@
+
 import express from "express";
 import path from "path";
 import crypto from "crypto";
@@ -173,8 +174,8 @@ app.post("/api/login", (req, res) => {
   const { username, password } = req.body || {};
 
   if (
-    !safeEqual(username, PRINCE_LIMON) ||
-    !safeEqual(password, PRINCE_LIMON_PSS)
+    !safeEqual(username, ADMIN_USERNAME) ||
+    !safeEqual(password, ADMIN_PASSWORD)
   ) {
     return res.status(401).json({
       error: "ভুল Username অথবা Password"
