@@ -1,520 +1,110 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="bn">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>FLYING ARROW | Admin Dashboard</title>
 <style>
-:root{
-  --bg:#071326;--panel:#101f38;--panel2:#152945;
-  --blue:#168cff;--cyan:#25d5ff;--text:#edf5ff;
-  --muted:#91a6c2;--green:#20d58a;--red:#ff5d72;
-  --yellow:#ffc857;--border:#263c5d;
-}
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--text);
-font-family:Arial,"Noto Sans Bengali",sans-serif}
-button,input,textarea,select{font:inherit}
-button{cursor:pointer;border:0;border-radius:9px;padding:11px 15px;
-background:var(--blue);color:white;font-weight:bold}
-button:disabled{opacity:.5;cursor:not-allowed}
-.secondary{background:#263b59}
-.danger{background:#c83b50}
-.success{background:#13875d}
-header{padding:17px 20px;background:#0b1b32;border-bottom:1px solid var(--border);
-display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
-header h2{margin:0;font-size:19px;color:var(--cyan)}
-header small{color:var(--muted)}
-.container{max-width:1200px;margin:auto;padding:18px}
-.hidden{display:none!important}
-.login-wrap{max-width:390px;margin:12vh auto;padding:25px;
-background:var(--panel);border:1px solid var(--border);border-radius:16px}
-.login-wrap h2{text-align:center;color:var(--cyan)}
-input,textarea,select{width:100%;padding:12px;margin:7px 0 13px;
-border-radius:9px;border:1px solid var(--border);
-background:#09172b;color:white;outline:none}
-textarea{min-height:110px;resize:vertical}
-label{font-size:13px;color:#b8c9df}
-.nav{display:flex;gap:8px;overflow-x:auto;padding:12px 0}
-.nav button{white-space:nowrap;background:#172b48}
-.nav button.active{background:var(--blue)}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:13px}
-.card{background:var(--panel);padding:17px;border:1px solid var(--border);
-border-radius:13px;margin-bottom:14px;min-width:0}
-.card h3{margin:0 0 14px;color:var(--cyan);font-size:16px}
-.stat{font-size:25px;font-weight:bold;margin-top:9px}
-.muted{color:var(--muted);font-size:13px}
-.status{display:inline-block;padding:5px 10px;border-radius:20px;
-background:#263b59;font-size:12px}
-.online{color:var(--green)}
-.offline{color:var(--red)}
-.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-.row>*{flex:1}
-.slot{background:var(--panel2);border:1px solid var(--border);
-padding:14px;border-radius:11px;margin-bottom:10px}
-.slot h4{margin:0 0 10px}
-.actions{display:flex;gap:8px;flex-wrap:wrap}
-.actions button{flex:1}
-.item{padding:13px;background:#0b1a30;border:1px solid var(--border);
-border-radius:10px;margin:9px 0;overflow-wrap:anywhere}
-#qrPreview{max-width:220px;max-height:220px;display:block;
-margin:12px auto;border-radius:10px}
-.chat-layout{display:grid;grid-template-columns:minmax(110px, .8fr) minmax(0,2fr);gap:12px}
-#chatList{max-height:430px;overflow:auto}
-#chatMessages{height:350px;overflow:auto;background:#09172b;
-border:1px solid var(--border);border-radius:10px;padding:10px}
-.msg{padding:9px 12px;border-radius:10px;margin:8px 0;
-background:#193454;max-width:90%;overflow-wrap:anywhere}
-.msg.in{background:#173e39}
-pre{white-space:pre-wrap;overflow-wrap:anywhere}
-@media(max-width:600px){
- .container{padding:12px}
- .chat-layout{grid-template-columns:1fr}
- #chatList{max-height:150px}
- header h2{font-size:16px}
-}
+:root{--bg:#071426;--panel:#10233d;--panel2:#0c1c32;--line:#24415f;--blue:#2586ff;--text:#edf5ff;--muted:#9bb0c9;--green:#22c782;--red:#ff6474;--yellow:#ffc857}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(145deg,#06101e,#0b1d34);color:var(--text);font:15px system-ui,-apple-system,Segoe UI,sans-serif}
+header{padding:18px 16px;border-bottom:1px solid var(--line);background:#08182bdc;position:sticky;top:0;z-index:3;backdrop-filter:blur(12px)}
+h1{font-size:20px;margin:0}header small{color:var(--muted)}main{max-width:1100px;margin:auto;padding:16px}
+nav{display:flex;gap:8px;overflow:auto;padding:12px 0}button,.tab{border:1px solid var(--line);background:#132b49;color:var(--text);border-radius:10px;padding:10px 13px;cursor:pointer;white-space:nowrap}
+button.primary{background:var(--blue);border-color:var(--blue);font-weight:700}button.danger{background:#572333;border-color:#8c3448}button:disabled{opacity:.5;cursor:not-allowed}
+section.panel{display:none;background:var(--panel);border:1px solid var(--line);border-radius:15px;padding:16px;margin:10px 0 18px}section.panel.active{display:block}
+h2{font-size:18px;margin:0 0 14px}h3{font-size:15px;margin:16px 0 8px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}.stat,.item{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:13px}
+.stat b{display:block;font-size:21px;margin-top:5px}.muted{color:var(--muted);font-size:13px}
+label{display:block;color:#c8d8ea;margin:12px 0 6px}input,textarea,select{width:100%;background:#07182c;border:1px solid var(--line);border-radius:9px;padding:11px;color:var(--text);font:inherit}
+textarea{min-height:110px;resize:vertical} .row{display:flex;gap:9px;align-items:center;flex-wrap:wrap}.row>*{flex:1}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.notice{padding:10px;border-radius:9px;background:#0a3040;color:#bdeeff;margin:10px 0;white-space:pre-wrap}
+.badge{display:inline-block;padding:4px 8px;border-radius:99px;background:#173b5b;font-size:12px}.good{color:var(--green)}.bad{color:var(--red)}.warn{color:var(--yellow)}
+img.qr{max-width:220px;max-height:220px;object-fit:contain;background:white;padding:8px;border-radius:10px;margin-top:10px}
+.item{margin:9px 0}.item p{margin:6px 0;overflow-wrap:anywhere}.chatlog{max-height:360px;overflow:auto;background:#07182c;padding:10px;border-radius:10px}
+.msg{padding:8px 10px;border-radius:10px;margin:7px 0;max-width:90%;white-space:pre-wrap;overflow-wrap:anywhere}.user{background:#1b3858}.assistant{background:#154c42;margin-left:auto}.admin{background:#51401e}
+@media(max-width:560px){main{padding:10px}section.panel{padding:12px}h1{font-size:18px}}
 </style>
 </head>
 <body>
+<header><h1>FLYING ARROW E-SPORTS</h1><small>Private WhatsApp Bot Admin Dashboard</small></header>
+<main>
+<nav>
+<button class="tab" data-tab="overview">Overview</button>
+<button class="tab" data-tab="settings">AI & Payment</button>
+<button class="tab" data-tab="schedule">Schedule</button>
+<button class="tab" data-tab="links">Group Links</button>
+<button class="tab" data-tab="bookings">Pending Bookings</button>
+<button class="tab" data-tab="inbox">Live Inbox</button>
+</nav>
 
-<header>
-  <div>
-    <h2>FLYING ARROW E-SPORTS</h2>
-    <small>Private Tournament Admin Panel</small>
-  </div>
-  <div class="row" style="flex:0;min-width:180px">
-    <button class="secondary" onclick="refreshAll()">Refresh</button>
-    <button class="danger" onclick="logout()">Logout</button>
-  </div>
-</header>
-
-<section id="loginScreen" class="login-wrap">
-  <h2>ADMIN LOGIN</h2>
-  <label>Username</label>
-  <input id="username" autocomplete="username" placeholder="Admin username">
-  <label>Password</label>
-  <input id="password" type="password" autocomplete="current-password" placeholder="Admin password">
-  <button style="width:100%" onclick="login()">LOGIN</button>
-  <p id="loginError" class="muted"></p>
+<section id="overview" class="panel active">
+<h2>System Overview</h2>
+<div class="grid">
+<div class="stat">WhatsApp Status<b id="waStatus">Loading...</b></div>
+<div class="stat">Database<b id="dbStatus">Loading...</b></div>
+<div class="stat">AI Provider<b id="aiProvider">—</b></div>
+<div class="stat">Server<b id="serverStatus">—</b></div>
+</div>
+<div class="actions"><button class="primary" onclick="refreshAll()">Refresh Status</button><button onclick="loadQR()">Show WhatsApp QR</button><button class="danger" onclick="logout()">Logout</button></div>
+<div id="qrArea"></div><div id="overviewMsg" class="notice" hidden></div>
 </section>
 
-<main id="dashboard" class="container hidden">
-  <div class="grid">
-    <div class="card">
-      <div class="muted">WhatsApp Connection</div>
-      <div id="waStatus" class="stat">Checking...</div>
-    </div>
-    <div class="card">
-      <div class="muted">Database Connection</div>
-      <div id="dbStatus" class="stat">Checking...</div>
-    </div>
-    <div class="card">
-      <div class="muted">AI Provider</div>
-      <div id="aiProvider" class="stat">-</div>
-    </div>
-    <div class="card">
-      <div class="muted">Pending Bookings</div>
-      <div id="pendingCount" class="stat">0</div>
-    </div>
-  </div>
+<section id="settings" class="panel">
+<h2>AI Knowledge & Payment</h2>
+<label>Main AI Prompt / Knowledge</label><textarea id="main_prompt" placeholder="Bot-এর আচরণ ও তথ্য লিখুন"></textarea>
+<label>Payment Details</label><textarea id="payment_details"></textarea>
+<label>Team Form</label><textarea id="team_form"></textarea>
+<label>Booking Rules</label><textarea id="booking_rules"></textarea>
+<label>Payment QR Image (PNG/JPG/WEBP, সর্বোচ্চ 2MB)</label><input id="qrFile" type="file" accept="image/png,image/jpeg,image/webp">
+<div id="paymentQRPreview"></div>
+<div class="actions"><button class="primary" onclick="saveSettings()">Save Settings</button><button onclick="uploadQR()">Upload Payment QR</button></div>
+<div id="settingsMsg" class="notice" hidden></div>
+</section>
 
-  <nav class="nav">
-    <button class="active" data-tab="overview" onclick="showTab('overview',this)">Overview</button>
-    <button data-tab="settings" onclick="showTab('settings',this)">AI & Payment</button>
-    <button data-tab="slots" onclick="showTab('slots',this)">Slot Management</button>
-    <button data-tab="links" onclick="showTab('links',this)">Group Links</button>
-    <button data-tab="bookings" onclick="showTab('bookings',this)">Bookings</button>
-    <button data-tab="inbox" onclick="showTab('inbox',this)">Live Inbox</button>
-  </nav>
+<section id="schedule" class="panel">
+<h2>Live Slot Manager</h2><p class="muted">প্রতিটি ম্যাচে সর্বোচ্চ ১২টি স্লট। Save করলে Supabase-এ আপডেট হবে।</p>
+<div id="slotsList">Loading slots...</div>
+</section>
 
-  <section id="tab-overview" class="tab">
-    <div class="card">
-      <h3>WhatsApp QR Connection</h3>
-      <p class="muted">WhatsApp কানেক্ট না থাকলে QR এখানে দেখা যাবে।</p>
-      <img id="connectionQR" alt="WhatsApp QR" class="hidden" style="max-width:250px;width:100%">
-      <p id="qrMessage" class="muted">Loading QR...</p>
-      <button onclick="loadQR()">Refresh QR</button>
-    </div>
-    <div class="card">
-      <h3>System Information</h3>
-      <p id="systemInfo" class="muted">Dashboard information</p>
-    </div>
-  </section>
+<section id="links" class="panel">
+<h2>Group Links & Admin Contacts</h2>
+<label>Group Links (JSON)</label><textarea id="group_links" spellcheck="false"></textarea>
+<label>Admin Contacts (JSON)</label><textarea id="admin_contacts" spellcheck="false"></textarea>
+<div class="actions"><button class="primary" onclick="saveJsonSettings()">Save Links & Contacts</button></div>
+<div id="linksMsg" class="notice" hidden></div>
+</section>
 
-  <section id="tab-settings" class="tab hidden">
-    <div class="card">
-      <h3>AI Main Prompt</h3>
-      <textarea id="main_prompt" placeholder="AI bot main instructions"></textarea>
-      <h3>Payment Details</h3>
-      <textarea id="payment_details" placeholder="bKash, Nagad, Rocket details"></textarea>
-      <h3>Team Information Form</h3>
-      <textarea id="team_form"></textarea>
-      <h3>Booking Rules</h3>
-      <textarea id="booking_rules"></textarea>
-      <button onclick="saveSettings()">Save AI & Payment Settings</button>
-    </div>
+<section id="bookings" class="panel">
+<h2>Pending / Recent Bookings</h2><button onclick="loadBookings()">Refresh Bookings</button>
+<div id="bookingList">Loading...</div>
+</section>
 
-    <div class="card">
-      <h3>Payment QR Upload</h3>
-      <input id="qrFile" type="file" accept="image/png,image/jpeg,image/webp">
-      <img id="paymentQRPreview" class="hidden" alt="Payment QR Preview">
-      <button onclick="uploadPaymentQR()">Upload Payment QR</button>
-      <p id="qrUploadMessage" class="muted"></p>
-    </div>
-  </section>
-
-  <section id="tab-slots" class="tab hidden">
-    <div class="card">
-      <h3>Live Slot Management</h3>
-      <p class="muted">প্রতিটি ম্যাচের সর্বোচ্চ ১২টি Slot। বুকড Slot ০–১২-এর মধ্যে রাখুন।</p>
-      <div id="slotList">Loading slots...</div>
-    </div>
-  </section>
-
-  <section id="tab-links" class="tab hidden">
-    <div class="card">
-      <h3>Match Group Links</h3>
-      <p class="muted">প্রতিটি ম্যাচের সঠিক WhatsApp Group Link দিন।</p>
-      <textarea id="group_links" placeholder='{"3 PM":"https://..."}'></textarea>
-      <h3>Admin Contacts</h3>
-      <textarea id="admin_contacts" placeholder='{"ADMIN LIMON":"016..."}'></textarea>
-      <button onclick="saveLinks()">Save Links & Contacts</button>
-    </div>
-  </section>
-
-  <section id="tab-bookings" class="tab hidden">
-    <div class="card">
-      <h3>Pending & Recent Bookings</h3>
-      <button class="secondary" onclick="loadBookings()">Refresh Bookings</button>
-      <div id="bookingList">Loading...</div>
-    </div>
-  </section>
-
-  <section id="tab-inbox" class="tab hidden">
-    <div class="card">
-      <h3>Live WhatsApp Inbox</h3>
-      <div class="chat-layout">
-        <div>
-          <div id="chatList">Loading chats...</div>
-        </div>
-        <div>
-          <div id="chatTitle" class="muted">একটি Chat নির্বাচন করুন</div>
-          <div id="chatMessages"></div>
-          <button class="secondary" onclick="loadChats()">Refresh Chats</button>
-        </div>
-      </div>
-    </div>
-  </section>
+<section id="inbox" class="panel">
+<h2>Live Inbox</h2><button onclick="loadChats()">Refresh Chats</button>
+<div id="chatList">Loading...</div>
+<div id="chatDetail"></div>
+</section>
 </main>
-
 <script>
-const $ = id => document.getElementById(id);
-let currentChat = null;
-let settingsCache = {};
-
-async function api(url, options={}) {
-  const config = {
-    credentials:"same-origin",
-    ...options,
-    headers:{
-      ...(options.body && !(options.body instanceof FormData)
-        ? {"Content-Type":"application/json"} : {}),
-      ...(options.headers || {})
-    }
-  };
-  const response = await fetch(url,config);
-  let data = {};
-  try { data = await response.json(); } catch {}
-  if(response.status === 401){
-    $("dashboard").classList.add("hidden");
-    $("loginScreen").classList.remove("hidden");
-    throw new Error("Login session expired");
-  }
-  if(!response.ok) throw new Error(data.error || data.message || "Request failed");
-  return data;
-}
-
-function esc(value){
-  return String(value ?? "").replace(/[&<>"']/g,c=>({
-    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
-  })[c]);
-}
-function parseObject(value){
-  try {
-    const result=JSON.parse(value);
-    if(!result || typeof result!=="object" || Array.isArray(result))
-      throw new Error();
-    return result;
-  } catch {
-    throw new Error("সঠিক JSON format দিন।");
-  }
-}
-function showMessage(id,message){
-  $(id).textContent=message;
-}
-async function login(){
-  showMessage("loginError","Logging in...");
-  try{
-    await api("/api/login",{
-      method:"POST",
-      body:JSON.stringify({
-        username:$("username").value,
-        password:$("password").value
-      })
-    });
-    $("loginScreen").classList.add("hidden");
-    $("dashboard").classList.remove("hidden");
-    await refreshAll();
-  }catch(e){showMessage("loginError",e.message)}
-}
-async function logout(){
-  try{await api("/api/logout",{method:"POST"})}catch{}
-  $("dashboard").classList.add("hidden");
-  $("loginScreen").classList.remove("hidden");
-}
-function showTab(name,button){
-  document.querySelectorAll(".tab").forEach(el=>el.classList.add("hidden"));
-  $("tab-"+name).classList.remove("hidden");
-  document.querySelectorAll(".nav button").forEach(el=>el.classList.remove("active"));
-  button.classList.add("active");
-  if(name==="slots")loadSlots();
-  if(name==="bookings")loadBookings();
-  if(name==="inbox")loadChats();
-}
-function setStatus(id,online){
-  $(id).textContent=online?"CONNECTED":"DISCONNECTED";
-  $(id).className="stat "+(online?"online":"offline");
-}
-async function loadStatus(){
-  const d=await api("/api/status");
-  setStatus("waStatus",!!d.whatsapp_connected);
-  setStatus("dbStatus",!!d.database_connected);
-  $("aiProvider").textContent=d.ai_provider||"Not configured";
-  $("systemInfo").textContent="WhatsApp: "+(d.whatsapp_connected?"Connected":"Disconnected")+
-    " | Database: "+(d.database_connected?"Connected":"Disconnected")+
-    " | AI: "+(d.ai_provider||"Not configured");
-}
-async function loadQR(){
-  try{
-    const d=await api("/api/qr");
-    const img=$("connectionQR");
-    if(d.qr){
-      img.src=d.qr;
-      img.classList.remove("hidden");
-      showMessage("qrMessage","QR Code Scan করুন।");
-    }else{
-      img.classList.add("hidden");
-      showMessage("qrMessage",d.connected?"WhatsApp Connected":"QR এখনো তৈরি হয়নি।");
-    }
-  }catch(e){showMessage("qrMessage",e.message)}
-}
-async function loadSettings(){
-  const d=await api("/api/settings");
-  settingsCache=d;
-  ["main_prompt","payment_details","team_form","booking_rules"].forEach(k=>{
-    $(k).value=d[k]||"";
-  });
-  $("paymentQRPreview").classList.toggle("hidden",!d.payment_qr_url);
-  if(d.payment_qr_url)$("paymentQRPreview").src=d.payment_qr_url;
-  $("group_links").value=JSON.stringify(d.group_links||{},null,2);
-  $("admin_contacts").value=JSON.stringify(d.admin_contacts||{},null,2);
-}
-async function saveSettings(){
-  try{
-    const body={};
-    ["main_prompt","payment_details","team_form","booking_rules"].forEach(k=>{
-      body[k]=$(k).value;
-    });
-    await api("/api/settings",{
-      method:"PUT",body:JSON.stringify(body)
-    });
-    alert("Settings saved successfully ❤️");
-  }catch(e){alert(e.message)}
-}
-async function saveLinks(){
-  try{
-    await api("/api/settings",{
-      method:"PUT",
-      body:JSON.stringify({
-        group_links:parseObject($("group_links").value),
-        admin_contacts:parseObject($("admin_contacts").value)
-      })
-    });
-    alert("Group Links & Contacts Saved ❤️");
-  }catch(e){alert(e.message)}
-}
-async function uploadPaymentQR(){
-  const file=$("qrFile").files[0];
-  if(!file){alert("প্রথমে QR Image নির্বাচন করুন");return}
-  if(file.size>2*1024*1024){alert("Image সর্বোচ্চ 2MB হতে পারবে");return}
-  if(!["image/png","image/jpeg","image/webp"].includes(file.type)){
-    alert("শুধু PNG, JPG অথবা WEBP ছবি দিন");return
-  }
-  const reader=new FileReader();
-  reader.onload=async()=>{
-    try{
-      const d=await api("/api/settings/payment-qr",{
-        method:"POST",body:JSON.stringify({image:reader.result})
-      });
-      if(d.payment_qr_url){
-        $("paymentQRPreview").src=d.payment_qr_url;
-        $("paymentQRPreview").classList.remove("hidden");
-      }
-      showMessage("qrUploadMessage","QR Upload Successful ❤️");
-    }catch(e){showMessage("qrUploadMessage",e.message)}
-  };
-  reader.onerror=()=>showMessage("qrUploadMessage","Image read failed");
-  reader.readAsDataURL(file);
-}
-async function loadSlots(){
-  const list=$("slotList");
-  list.textContent="Loading...";
-  try{
-    const data=await api("/api/slots");
-    const slots=Array.isArray(data)?data:(data.slots||[]);
-    if(!slots.length){list.textContent="কোনো Slot পাওয়া যায়নি";return}
-    list.innerHTML=slots.map((s,i)=>`
-      <div class="slot" data-slot="${esc(s.slot_key)}">
-        <h4>${esc(s.match_name||s.slot_key)}</h4>
-        <div class="row">
-          <div><label>Price (TK)</label>
-          <input type="number" min="0" id="price-${i}" value="${Number(s.price_tk)||0}"></div>
-          <div><label>Booked Slots (0–12)</label>
-          <input type="number" min="0" max="12" id="booked-${i}" value="${Number(s.booked_slots)||0}"></div>
-          <div><label>Status</label>
-          <select id="status-${i}">
-            ${["AVAILABLE","FULL","OFF"].map(v=>`<option ${s.status===v?"selected":""}>${v}</option>`).join("")}
-          </select></div>
-        </div>
-        <button onclick="saveSlot(${i},'${encodeURIComponent(s.slot_key)}')">Save Match</button>
-      </div>`).join("");
-    window.slotData=slots;
-  }catch(e){list.textContent=e.message}
-}
-async function saveSlot(index,encodedKey){
-  try{
-    const key=decodeURIComponent(encodedKey);
-    const price=Number($("price-"+index).value);
-    const booked=Number($("booked-"+index).value);
-    if(!Number.isFinite(price)||price<0)throw new Error("সঠিক Price দিন");
-    if(!Number.isInteger(booked)||booked<0||booked>12)
-      throw new Error("Booked Slots অবশ্যই ০ থেকে ১২-এর মধ্যে হতে হবে");
-    await api("/api/slots/"+encodeURIComponent(key),{
-      method:"PUT",
-      body:JSON.stringify({
-        price_tk:price,
-        booked_slots:booked,
-        status:$("status-"+index).value,
-        match_name:window.slotData[index].match_name
-      })
-    });
-    alert("Slot Updated ❤️");
-    await loadSlots();
-  }catch(e){alert(e.message)}
-}
-async function loadBookings(){
-  const list=$("bookingList");
-  list.textContent="Loading...";
-  try{
-    const d=await api("/api/bookings");
-    const bookings=Array.isArray(d)?d:(d.bookings||[]);
-    const pending=bookings.filter(b=>!b.admin_approved);
-    $("pendingCount").textContent=pending.length;
-    if(!bookings.length){list.textContent="কোনো Booking নেই";return}
-    list.innerHTML=bookings.map(b=>{
-      const jid=String(b.jid||"");
-      const approved=!!b.admin_approved;
-      return `<div class="item">
-        <b>${esc(b.team_name||"Unknown Team")}</b>
-        <p class="muted">Slot: ${esc(b.selected_slot_key||"-")} |
-        Payment: ${esc(b.payment_method||"-")}</p>
-        <p>IGL: ${esc(b.igl_name||"-")}</p>
-        <p>Players: ${esc(Array.isArray(b.player_names)?b.player_names.join(", "):b.player_names||"-")}</p>
-        <p>Last 4 digits: ${esc(b.payment_last4||"-")}</p>
-        <p>Screenshot: ${b.screenshot_received?"Received":"Not received"}</p>
-        <p>Status: ${approved?"APPROVED":"PENDING"}</p>
-        ${!approved?`<div class="actions">
-          <button class="success" onclick="bookingAction('${encodeURIComponent(jid)}','approve')">Approve</button>
-          <button class="danger" onclick="bookingAction('${encodeURIComponent(jid)}','reject')">Reject</button>
-        </div>`:""}
-      </div>`;
-    }).join("");
-  }catch(e){list.textContent=e.message}
-}
-async function bookingAction(encodedJid,action){
-  const jid=decodeURIComponent(encodedJid);
-  if(!confirm("আপনি কি নিশ্চিত?"))return;
-  try{
-    await api("/api/bookings/"+encodeURIComponent(jid)+"/"+action,{method:"POST"});
-    alert(action==="approve"?"Booking Approved":"Booking Rejected");
-    await loadBookings();
-  }catch(e){alert(e.message)}
-}
-async function loadChats(){
-  const list=$("chatList");
-  list.textContent="Loading...";
-  try{
-    const d=await api("/api/chats");
-    const chats=Array.isArray(d)?d:(d.chats||[]);
-    if(!chats.length){list.textContent="কোনো Chat নেই";return}
-    list.innerHTML=chats.map(c=>{
-      const jid=String(c.jid||c.id||"");
-      return `<div class="item">
-        <button class="secondary" style="width:100%;text-align:left"
-        onclick="openChat('${encodeURIComponent(jid)}')">
-          ${esc(c.name||jid||"Unknown")}
-          <br><small>${esc(c.last_message||c.lastMessage||"Open chat")}</small>
-        </button>
-      </div>`;
-    }).join("");
-  }catch(e){list.textContent=e.message}
-}
-async function openChat(encodedJid){
-  currentChat=decodeURIComponent(encodedJid);
-  $("chatTitle").textContent=currentChat;
-  await loadMessages();
-}
-async function loadMessages(){
-  if(!currentChat)return;
-  const box=$("chatMessages");
-  box.textContent="Loading messages...";
-  try{
-    const d=await api("/api/chats/"+encodeURIComponent(currentChat));
-    const messages=Array.isArray(d)?d:(d.messages||[]);
-    box.innerHTML=messages.map(m=>{
-      const body=m.text||m.body||m.message||m.content||"";
-      const incoming=m.fromMe===false||m.from_me===false||m.direction==="in";
-      return `<div class="msg ${incoming?"in":""}">
-        <pre>${esc(body)}</pre>
-        <small class="muted">${esc(m.timestamp||m.time||"")}</small>
-      </div>`;
-    }).join("")||"No messages found";
-    box.scrollTop=box.scrollHeight;
-  }catch(e){box.textContent=e.message}
-}
-async function refreshAll(){
-  try{
-    await loadStatus();
-    await loadQR();
-    await loadSettings();
-    await loadBookings();
-  }catch(e){console.error(e)}
-}
-async function checkSession(){
-  try{
-    await api("/api/status");
-    $("loginScreen").classList.add("hidden");
-    $("dashboard").classList.remove("hidden");
-    await refreshAll();
-  }catch{
-    $("dashboard").classList.add("hidden");
-    $("loginScreen").classList.remove("hidden");
-  }
-}
-$("password").addEventListener("keydown",e=>{
-  if(e.key==="Enter")login();
-});
-checkSession();
+const $=id=>document.getElementById(id);
+async function api(url,options={}){const r=await fetch(url,{credentials:"same-origin",headers:{"Content-Type":"application/json",...(options.headers||{})},...options});let d={};try{d=await r.json()}catch{}if(r.status===401){location.href="/login";throw new Error("Admin session expired. আবার Login করুন।")}if(!r.ok)throw new Error(d.error||("HTTP "+r.status));return d}
+function message(id,text,ok=true){const el=$(id);el.hidden=false;el.textContent=text;el.style.background=ok?"#0a3040":"#48202b"}
+document.querySelectorAll(".tab").forEach(b=>b.addEventListener("click",()=>{document.querySelectorAll(".panel").forEach(p=>p.classList.remove("active"));$(b.dataset.tab).classList.add("active");if(b.dataset.tab==="bookings")loadBookings();if(b.dataset.tab==="inbox")loadChats();if(b.dataset.tab==="schedule")loadSlots()}));
+async function refreshAll(){try{const d=await api("/api/status");$("waStatus").textContent=d.status||"—";$("waStatus").className=d.whatsappConnected?"good":"warn";$("dbStatus").textContent=d.database||"—";$("dbStatus").className=d.database==="online"?"good":"bad";$("aiProvider").textContent=d.aiProvider||"—";$("serverStatus").textContent=d.server||"—";if(d.status==="WhatsApp Connected"){$("waStatus").className="good"}}catch(e){message("overviewMsg",e.message,false)}}
+async function loadQR(){try{const d=await api("/api/qr");$("qrArea").innerHTML=d.qr?'<p>WhatsApp Link QR scan করুন:</p><img class="qr" alt="WhatsApp QR" src="'+d.qr+'">':'<p class="muted">এখন QR নেই। WhatsApp reconnect হলে QR দেখা যাবে।</p>'}catch(e){message("overviewMsg",e.message,false)}}
+async function loadSettings(){try{const d=await api("/api/settings");const s=d.settings||{};["main_prompt","payment_details","team_form","booking_rules"].forEach(k=>$(k).value=s[k]||"");$("group_links").value=JSON.stringify(s.group_links||{},null,2);$("admin_contacts").value=JSON.stringify(s.admin_contacts||{},null,2);$("paymentQRPreview").innerHTML=s.payment_qr_url?'<img class="qr" src="'+s.payment_qr_url+'" alt="Payment QR"><p class="muted">বর্তমান Payment QR</p>':"No payment QR uploaded";}catch(e){message("settingsMsg",e.message,false)}}
+async function saveSettings(){try{await api("/api/settings",{method:"PUT",body:JSON.stringify({main_prompt:$("main_prompt").value,payment_details:$("payment_details").value,team_form:$("team_form").value,booking_rules:$("booking_rules").value})});message("settingsMsg","Settings saved successfully ❤️")}catch(e){message("settingsMsg",e.message,false)}}
+async function saveJsonSettings(){try{const group_links=JSON.parse($("group_links").value||"{}"),admin_contacts=JSON.parse($("admin_contacts").value||"{}");await api("/api/settings",{method:"PUT",body:JSON.stringify({group_links,admin_contacts})});message("linksMsg","Group links ও contacts save হয়েছে ❤️")}catch(e){message("linksMsg",e.message,false)}}
+async function uploadQR(){const f=$("qrFile").files[0];if(!f){message("settingsMsg","আগে QR image নির্বাচন করুন",false);return}if(f.size>2*1024*1024){message("settingsMsg","ছবির সাইজ 2MB-এর বেশি",false);return}try{const imageData=await new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(r.result);r.onerror=reject;r.readAsDataURL(f)});const d=await api("/api/settings/payment-qr",{method:"POST",body:JSON.stringify({imageData,mimeType:f.type})});message("settingsMsg","Payment QR upload হয়েছে ❤️");$("paymentQRPreview").innerHTML='<img class="qr" src="'+d.payment_qr_url+'" alt="Payment QR">'}catch(e){message("settingsMsg",e.message,false)}}
+async function loadSlots(){try{const d=await api("/api/slots");$("slotsList").innerHTML=(d.slots||[]).map(s=>`<div class="item"><h3>${esc(s.match_name||s.slot_key)} <span class="badge">${esc(s.slot_key)}</span></h3><div class="grid"><div><label>Price (TK)</label><input type="number" min="1" id="price_${esc(s.slot_key)}" value="${Number(s.price_tk)||20}"></div><div><label>Booked Slots (0–12)</label><input type="number" min="0" max="12" id="booked_${esc(s.slot_key)}" value="${Number(s.booked_slots)||0}"></div><div><label>Status</label><select id="status_${esc(s.slot_key)}"><option ${s.status==="AVAILABLE"?"selected":""}>AVAILABLE</option><option ${s.status==="FULL"?"selected":""}>FULL</option><option ${s.status==="OFF"?"selected":""}>OFF</option></select></div></div><p class="muted">Capacity: ${Number(s.total_slots)||12}</p><button class="primary" onclick="saveSlot('${esc(s.slot_key)}')">Save Match</button></div>`).join("")||"No slots found"}catch(e){$("slotsList").textContent=e.message}}
+async function saveSlot(key){try{const price_tk=Number($("price_"+key).value),booked_slots=Number($("booked_"+key).value),status=$("status_"+key).value;if(!Number.isInteger(price_tk)||price_tk<1)throw new Error("Price অবশ্যই ১ বা তার বেশি পূর্ণ সংখ্যা হতে হবে");if(!Number.isInteger(booked_slots)||booked_slots<0||booked_slots>12)throw new Error("Booked Slots ০ থেকে ১২-এর পূর্ণ সংখ্যা হতে হবে");await api("/api/slots/"+encodeURIComponent(key),{method:"PUT",body:JSON.stringify({price_tk,booked_slots,status})});alert("Slot updated ❤️");await loadSlots()}catch(e){alert(e.message)}}
+async function loadBookings(){try{const d=await api("/api/bookings");const rows=d.bookings||[];$("bookingList").innerHTML=rows.map(b=>`<div class="item"><b>${esc(b.team_name||"Team details pending")}</b><p class="muted">${esc(b.jid)} · ${esc(b.selected_slot_key||"No slot")} · Stage: ${esc(b.stage||"—")}</p><p>IGL: ${esc(b.igl_name||"—")} | Players: ${esc(b.player_names||"—")}</p><p>Payment last 4: ${esc(b.payment_last4||"—")} | Method: ${esc(b.payment_method||"—")} | Number: ${esc(b.payment_number||"—")}</p><p>Screenshot received: ${b.screenshot_received?"Yes":"No"} | Approved: ${b.admin_approved?"Yes":"No"}</p><div class="actions"><button class="primary" onclick="approve('${encodeURIComponent(b.jid)}')" ${b.admin_approved?"disabled":""}>Approve & Send Group Link</button><button class="danger" onclick="reject('${encodeURIComponent(b.jid)}')">Reject</button></div></div>`).join("")||"No bookings yet"}catch(e){$("bookingList").textContent=e.message}}
+async function approve(jid){if(!confirm("এই booking approve করে group link পাঠাবেন?"))return;try{await api("/api/bookings/"+jid+"/approve",{method:"POST",body:"{}"});alert("Approve request completed");loadBookings()}catch(e){alert(e.message)}}
+async function reject(jid){if(!confirm("এই booking reject করবেন?"))return;try{await api("/api/bookings/"+jid+"/reject",{method:"POST",body:"{}"});alert("Booking rejected");loadBookings()}catch(e){alert(e.message)}}
+async function loadChats(){try{const d=await api("/api/chats");$("chatList").innerHTML=(d.chats||[]).map(c=>`<div class="item"><b>${esc(c.jid)}</b><p class="muted">${esc(c.lastMessage||"")}</p><button onclick="openChat('${encodeURIComponent(c.jid)}')">Open Chat</button></div>`).join("")||"No chats yet"}catch(e){$("chatList").textContent=e.message}}
+async function openChat(jid){try{const d=await api("/api/chats/"+jid);$("chatDetail").innerHTML='<h3>Conversation</h3><div class="chatlog">'+(d.messages||[]).map(m=>`<div class="msg ${esc(m.role)}"><small>${esc(m.role)}</small><br>${esc(m.content)}</div>`).join("")+'</div>'}catch(e){$("chatDetail").textContent=e.message}}
+async function logout(){try{await api("/api/logout",{method:"POST",body:"{}"});location.href="/login"}catch(e){alert(e.message)}}
+function esc(v){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+refreshAll();loadSettings();loadQR();setInterval(refreshAll,15000);
 </script>
-</body>
-</html>
+</body></html>
