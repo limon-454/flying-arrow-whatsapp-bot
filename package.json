@@ -1,6 +1,6 @@
 {
   "name": "flying-arrow-whatsapp-bot",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "type": "module",
   "description": "FLYING ARROW WhatsApp AI Bot with private admin dashboard",
   "main": "index.js",
